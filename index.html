@@ -956,8 +956,8 @@
           </div>
         </div>
       </div>
-   </div> </div> 
-    
+</div> </div> 
+
 <script>
     // --- 1. LINK PUBLIC ---
     const scriptURL = 'https://script.google.com/macros/s/AKfycbypILmDef-Jfa0UtLKd_DF7jvBmm825QFQ6TFSU1vJY7y6UIN77VN9GiJrOuItmDqT5/exec';
@@ -1008,56 +1008,8 @@
     // ==========================================
     // FUNGSI ASAL DR BERMULA DI BAWAH INI
     // ==========================================
-  function doLogin() { ... }
-</script>
-      
-    // 1. Link Public Dr
-const scriptURL = 'https://script.google.com/macros/s/AKfycbypILmDef-Jfa0UtLKd_DF7jvBmm825QFQ6TFSU1vJY7y6UIN77VN9GiJrOuItmDqT5/exec';
-
-// --- SUPER BRIDGE TRANSLATOR (VERSI FINAL) ---
-const google = {
-  script: {
-    run: {
-      withSuccessHandler: function(callback) {
-        this.currentCallback = callback;
-        return this;
-      },
-      withFailureHandler: function(handler) {
-        this.currentFailure = handler;
-        return this;
-      },
-      ...new Proxy({}, {
-        get: (target, name) => {
-          return function(...args) {
-            const callbackName = 'jsonp_' + Math.round(Math.random() * 1000000);
-            const activeCallback = this.currentCallback;
-
-            window[callbackName] = function(res) {
-              if (activeCallback) activeCallback(res);
-              delete window[callbackName];
-              const s = document.getElementById(callbackName);
-              if (s) s.remove();
-            };
-
-            const finalURL = `${scriptURL}?action=${name}&data=${encodeURIComponent(JSON.stringify(args))}&callback=${callbackName}`;
-            
-            const script = document.createElement('script');
-            script.id = callbackName;
-            script.src = finalURL;
-            script.onerror = () => alert("Rangkaian Bermasalah / Script URL Salah");
-            document.body.appendChild(script);
-
-            this.currentCallback = null;
-          }.bind(google.script.run);
-        }
-      })
-    }
-  }
-};
-
-    // SEMUA JAVASCRIPT ASAL ANDA DIKEKALKAN DI SINI
     function clearCalc() {
-      if(document.getElementById('c-mg')) document.getElementById('c-mg').value = '';
+      
       if(document.getElementById('c-ml')) document.getElementById('c-ml').value = '';
       if(document.getElementById('c-weight')) document.getElementById('c-weight').value = '';
       if(document.getElementById('c-target-dose')) document.getElementById('c-target-dose').value = '';
