@@ -956,9 +956,10 @@
           </div>
         </div>
       </div>
-    </div> </div> <script>
-
-  // --- 1. LINK PUBLIC ---
+   </div> </div> 
+    
+<script>
+    // --- 1. LINK PUBLIC ---
     const scriptURL = 'https://script.google.com/macros/s/AKfycbypILmDef-Jfa0UtLKd_DF7jvBmm825QFQ6TFSU1vJY7y6UIN77VN9GiJrOuItmDqT5/exec';
 
     // --- 2. SUPER BRIDGE (FIXED SYNTAX) ---
@@ -1000,12 +1001,13 @@
           script.src = finalURL;
           document.body.appendChild(script);
           target.currentCallback = null;
-      };
-    }
-  });
+        };
+      }
+    });
 
-  // 2. LEPAS TU BARU DIKUTI OLEH FUNGSI ASAL DR (clearCalc, doLogin, etc)
-  function clearCalc() { ... }
+    // ==========================================
+    // FUNGSI ASAL DR BERMULA DI BAWAH INI
+    // ==========================================
   function doLogin() { ... }
 </script>
       
