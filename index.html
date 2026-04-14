@@ -957,10 +957,10 @@
       </div>
     </div> </div> <script>
 
-      // 1. GANTI URL DI BAWAH DENGAN URL YANG DR SALIN TADI (PASTIKAN TIADA /u/1/)
+      // --- 1. PASTE LINK SUCI DR KAT SINI (PASTIKAN TIADA /u/1/) ---
 const scriptURL = 'https://script.google.com/macros/s/AKfycbypILmDef-Jfa0UtLKd_DF7jvBmm825QFQ6TFSU1vJY7y6UIN77VN9GiJrOuItmDqT5/exec';
 
-// --- BRIDGE TRANSLATOR GITHUB TO GAS ---
+// --- 2. BRIDGE TRANSLATOR GITHUB TO GAS (VERSION FIX AUTHENTICATING STUCK) ---
 const google = {
   script: {
     run: {
@@ -971,25 +971,36 @@ const google = {
       ...new Proxy({}, {
         get: (target, name) => {
           return function(...args) {
-            const url = `${scriptURL}?action=${name}&data=${encodeURIComponent(JSON.stringify(args))}`;
+            // Gunakan URLSearchParams untuk pastikan data dihantar dengan format GET yang bersih
+            const params = new URLSearchParams({
+              action: name,
+              data: JSON.stringify(args)
+            });
             
-            fetch(url, {
+            const finalURL = `${scriptURL}?${params.toString()}`;
+
+            fetch(finalURL, {
               method: 'GET',
               mode: 'cors',
               redirect: 'follow'
             })
-            .then(res => res.json())
+            .then(res => {
+              if (!res.ok) throw new Error('Network error');
+              return res.json();
+            })
             .then(res => { 
               if (this.callback) this.callback(res); 
             })
-            .catch(err => console.error("Database Error:", err));
+            .catch(err => {
+              console.error("Bridge Error:", err);
+              // Jika stuck, kita bagi amaran di console
+            });
           }.bind(google.script.run);
         }
       })
     }
   }
 };
-// ----------------------------------------------------
 
     // SEMUA JAVASCRIPT ASAL ANDA DIKEKALKAN DI SINI
     function clearCalc() {
