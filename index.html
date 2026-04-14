@@ -1,0 +1,2436 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1fF_cdbj9sL0WnU55dJuBDdvy6ZY7B0pZ?v=2">
+  <link rel="shortcut icon" type="image/x-icon" href="https://lh3.googleusercontent.com/d/1fF_cdbj9sL0WnU55dJuBDdvy6ZY7B0pZ?v=2">
+  <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/d/1fF_cdbj9sL0WnU55dJuBDdvy6ZY7B0pZ?v=2">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root { 
+      --navy: #001F3F; 
+      --accent: #007AFF;
+      --ios-bg: #F8F9FA; 
+      --red: #FF3B30; 
+    }
+  
+    body { background: var(--ios-bg); font-family: -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; color: #333; }
+    
+    /* SIDEBAR NAVY STYLE */
+    #sidebar { 
+      width: 260px; 
+      height: 100vh; 
+      position: fixed; 
+      background: var(--navy); 
+      padding: 25px 20px; 
+      z-index: 1000; 
+      color: white; 
+      transition: 0.3s; 
+      overflow-y: auto; 
+    }
+    #sidebar h5 { color: #ffffff; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+    
+    #content { margin-left: 260px; padding: 35px; padding-bottom: 120px; transition: 0.3s; }
+    
+    /* MODERN NAV LINKS */
+    .nav-link { color: rgba(255,255,255,0.7) !important; border-radius: 10px; margin-bottom: 5px; cursor: pointer; font-weight: 500; transition: 0.2s; display: flex; align-items: center; padding: 12px !important; text-decoration: none; position: relative; }
+    .nav-link:hover { background: rgba(255,255,255,0.1); color: white !important; }
+    .nav-link.active { background: var(--accent) !important; color: white !important; box-shadow: 0 4px 15px rgba(0,122,255,0.3); }
+    
+    /* RED DOT NOTIFICATION STYLE */
+    .dot-notify {
+      height: 8px;
+      width: 8px;
+      background-color: var(--red);
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: 8px;
+      border: 1px solid white;
+      box-shadow: 0 0 5px rgba(255, 59, 48, 0.5);
+      display: none; /* Hidden by default, JS will show it */
+    }
+
+    .sidebar-label { font-size: 11px; font-weight: bold; color: rgba(255,255,255,0.4); text-transform: uppercase; margin: 25px 0 10px 12px; }
+
+    /* CARDS */
+    .card { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 20px; background: white; padding: 25px; }
+    .btn-primary { background: var(--navy); border: none; border-radius: 12px; padding: 12px; font-weight: 600; }
+    .btn-primary:hover { background: #002d5c; }
+    
+    .hidden { display: none !important; }
+    /* DESIGN UNTUK BUTANG VIEW FILE */
+    .view-btn {
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-top: 8px;
+      display: inline-block;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: 0.2s;
+    }
+    .view-btn:hover {
+      opacity: 0.8;
+      color: white !important;
+    }
+    
+    /* BOTTOM NAV FOR MOBILE */
+    #bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-top: 1px solid #eee; z-index: 2000; justify-content: space-around; padding: 12px 0; }
+    .bn-item { text-align: center; color: #8E8E93; font-size: 11px; flex: 1; cursor: pointer; transition: 0.2s; position: relative; }
+    .bn-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+    .bn-item.active { color: var(--accent); }
+    
+    /* Mobile Dot Adjust */
+    #bottom-nav .dot-notify {
+      position: absolute;
+      top: 10px;
+      right: 25%;
+      margin-left: 0;
+    }
+
+   /*  APPLE STYLE CALENDAR CSS */
+    .fc {
+      font-family: -apple-system, sans-serif !important;
+      border: none !important;
+      background: white;
+      border-radius: 20px;
+      padding: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    .fc-toolbar-title { font-size: 1.1rem !important; font-weight: 700 !important; color: var(--navy); letter-spacing: -0.5px; }
+    .fc-button {
+      background-color: #F2F2F7 !important; border: none !important; color: #007AFF !important; 
+      font-weight: 600 !important; border-radius: 10px !important; font-size: 0.85rem !important;
+      padding: 6px 12px !important; text-transform: capitalize !important;
+    }
+    .fc-button:hover { background-color: #E5E5EA !important; }
+    .fc-button-primary:not(:disabled).fc-button-active { background-color: #007AFF !important; color: white !important; }
+    .fc-col-header-cell { border: none !important; padding-bottom: 10px !important; }
+    .fc-col-header-cell-cushion { font-size: 0.7rem !important; text-transform: uppercase; color: #8E8E93 !important; font-weight: 600; }
+    .fc-theme-standard td, .fc-theme-standard th { border: 1px solid #F2F2F7 !important; }
+    .fc-daygrid-day-number { font-size: 0.85rem !important; font-weight: 400; padding: 8px !important; color: #1C1C1E; }
+    .fc-day-today { background-color: rgba(0, 122, 255, 0.04) !important; }
+    .fc-day-today .fc-daygrid-day-number {
+      background-color: #007AFF; color: white !important; border-radius: 50%;
+      width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; margin: 5px;
+    }
+    .fc-event { border-radius: 6px !important; border: none !important; padding: 3px 6px !important; font-size: 0.65rem !important; font-weight: 600 !important; margin: 1px 2px !important; }
+    
+    @media (max-width: 768px) { 
+      #sidebar { display: none; } 
+      #content { margin-left: 0; padding: 20px; padding-bottom: 100px; } 
+      #bottom-nav { display: flex; }
+    } 
+
+    /* ARACOINS & BADGES PREMIUM APPLE STYLE */
+    .aracoins-card {
+      background: linear-gradient(145deg, #1e1e22, #000000);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 215, 0, 0.2); /* Sentuhan emas halus */
+      margin: 10px 15px 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .badge-circle {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      /* Kesan Garisan Emas Medal Apple */
+      border: 3px solid #D4AF37; 
+      box-shadow: 
+        inset 0 0 15px rgba(0,0,0,0.5),
+        0 5px 15px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Kesan Kilauan Stained Glass */
+    .badge-circle::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);
+      transform: rotate(30deg);
+    }
+
+    .badge-text {
+      font-size: 9px;
+      font-weight: 800;
+      color: #D4AF37; /* Warna Emas */
+      text-transform: uppercase;
+      display: block;
+      line-height: 1.2;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* LOADING OVERLAY STYLE */
+    #loading-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(5px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .spinner {
+      width: 50px; height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid var(--navy);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+
+    /* 1. DEFAULT UNTUK DESKTOP (Kemas Melintang) */
+    #badge-container {
+      display: flex !important;
+      gap: 15px;
+      overflow-x: auto;
+      padding: 10px 0;
+      justify-content: center; /* Badge duduk tengah skrin desktop */
+    }
+
+    .badge-circle { 
+      width: 70px; 
+      height: 70px; 
+      flex-shrink: 0; 
+      position: relative; /* Wajib ada untuk letak angka :1 :2 */
+      overflow: visible !important; /* Supaya angka tak terpotong */
+    }
+
+    /* 2. KHAS UNTUK MOBILE (Grid 2 Sebaris) */
+    @media (max-width: 768px) {
+      #badge-container {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+        overflow-x: hidden !important;
+      }
+      .badge-circle { 
+        width: 80px !important; 
+        height: 80px !important; 
+      }
+    }
+
+    /* --- TAMBAHAN STYLE PREMIUM --- */
+
+    /* Pastikan teks kalendar tidak terlampau rapat & masuk baris dlm mobile */
+    .fc-event-title {
+      white-space: normal !important;
+      word-wrap: break-word !important;
+      font-size: 9px !important;
+      font-weight: 700 !important; /* Tebalkan sikit teks SK/KJ */
+    }
+
+    /* Tambah sedikit bayangan (shadow) supaya kotak SK/KJ nampak 3D/Premium */
+    .fc-event {
+      border: none !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 2px 4px !important;
+    }
+
+    /* Tambah padding sikit untuk list New Locum supaya tak nampak sesak */
+    #locum-app-body td {
+      padding: 12px 8px !important;
+      border-bottom: 1px solid #f2f2f7;
+    }
+
+    /* ============================================================
+     KHAS UNTUK MOBILE SAHAJA (MAX 768px) 
+     Mencantikkan Interface Tanpa Mengganggu Paparan Desktop
+     ============================================================ */
+  @media (max-width: 768px) {
+    
+    /* 1. Background App Ala Modern iOS */
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+        background-attachment: fixed;
+    }
+
+    /* 2. Login Page Makeover (Glassmorphism) */
+    #login-page .card {
+        background: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        border-radius: 35px !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* 3. Input & Button Login Lebih Sleek */
+    #login-page .form-control {
+        border-radius: 18px !important;
+        padding: 15px !important;
+        font-size: 16px !important;
+    }
+
+    #login-page .btn-primary {
+        background: linear-gradient(135deg, #001F3F 0%, #007AFF 100%) !important;
+        border-radius: 18px !important;
+        height: 55px;
+        box-shadow: 0 10px 20px rgba(0, 31, 63, 0.2) !important;
+    }
+
+    /* 4. Dashboard Cards (Soft Glass look) */
+    .view .card {
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(10px);
+        border-radius: 25px !important;
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05) !important;
+    }
+
+    /* 5. Tajuk & Welcome Note */
+    #view-title { font-size: 24px !important; letter-spacing: -1px; }
+    #welcome-note { font-size: 14px !important; color: #555 !important; }
+
+    /* 1. PAKSA KAD JADI HITAM PEKAT */
+    div.aracoins-card, .view .aracoins-card {
+        background: #000000 !important; 
+        background-color: #000000 !important;
+        background-image: none !important; /* Buang sebarang gradient yang degil */
+        border: 1.5px solid rgba(212, 175, 55, 0.4) !important;
+        border-radius: 28px !important;
+    }
+
+    /* 2. PAKSA NOMBOR JADI PUTIH SOLID & BESAR */
+    #profile-coins, h1#profile-coins {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important; 
+        background: transparent !important; /* Buang sebarang kesan emas/gradient */
+        font-size: 64px !important;
+        font-weight: 800 !important;
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    /* 3. PAKSA LABEL JADI KELABU */
+    .aracoins-card h6 {
+        color: #8E8E93 !important;
+        font-weight: 700 !important;
+    }
+
+    /* 4. TROPHY EMAS TERANG */
+    .aracoins-card .bi-award-fill {
+        color: #FFCC00 !important;
+        font-size: 3rem !important;
+    }
+    /* 5. Bottom Nav (Floating iOS Style) */
+    #bottom-nav {
+        bottom: 15px !important;
+        left: 15px !important;
+        right: 15px !important;
+        border-radius: 25px !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        height: 70px !important;
+    }
+
+    /* 6. Padding Extra supaya content tak kena tutup dengan Nav */
+    #content {
+        padding-bottom: 120px !important;
+    }
+  }
+  </style>
+</head>
+<body>
+  <div id="loading-overlay" class="hidden">
+    <div class="spinner"></div>
+    <h6 class="fw-bold" style="color: var(--navy);">Uploading Files...</h6>
+    <p class="small text-muted">Please wait, do not close the app.</p>
+  </div>
+
+<div id="login-page" class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 100vh; padding: 20px;">
+    
+    <div class="card text-center shadow-lg mb-4" style="max-width: 400px; width: 100%; border-radius: 25px; padding: 40px; background-color: white;">
+      <div class="mb-4">
+        <img src="https://lh3.googleusercontent.com/d/1fF_cdbj9sL0WnU55dJuBDdvy6ZY7B0pZ" alt="Logo" style="height: 100px; width: auto; margin-bottom: 10px; display: inline-block;">
+      </div> 
+      <h2 class="fw-bold mb-2" style="color: #001F3F; letter-spacing: -1px;">ARA LOCUM HUB</h2>
+      <p class="text-muted small mb-4">Clinic Locum Management</p>
+      
+      <input type="text" id="phone" class="form-control mb-2 p-3" style="border-radius:12px; background: #f0f2f5; border:none;" placeholder="Phone Number">
+      <input type="password" id="pass" class="form-control mb-4 p-3" style="border-radius:12px; background: #f0f2f5; border:none;" placeholder="Password">
+      
+      <button class="btn btn-primary w-100 shadow-sm py-3" style="background-color: #001F3F !important; border: none; border-radius: 12px; font-weight: 600;" onclick="doLogin()">Sign In</button>
+    </div>
+
+    <div class="text-center" style="max-width: 400px; width: 100%;">
+      <div style="border-top: 1px solid #ddd; margin: 25px 0;"></div>
+      
+      <h5 class="fw-bold" style="color: #001F3F; letter-spacing: -0.5px;">Interested in joining our locum team?</h5>
+      
+      <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px; background: #ffffff; border: 1px solid #f0f0f0 !important;">
+        <p class="small text-muted mb-4" style="line-height: 1.6;">
+          Join our network of healthcare professionals at Klinik ARA 24 Jam. To maintain our clinical standards, all applications are filtered. Shortlisted candidates will be invited for a <b>brief interview</b> and credential verification.
+        </p>
+
+        <a href="https://forms.gle/Vic87gdBf1kmFir88" target="_blank" class="btn btn-primary w-100 py-3 fw-bold" style="border-radius: 12px; font-size: 14px; background-color: #007AFF; border: none; box-shadow: 0 4px 12px rgba(0,122,255,0.15);">
+          Begin Application Request
+        </a>
+      </div>
+      
+      <p class="mt-3" style="font-size: 10px; color: #bbb; text-transform: uppercase; letter-spacing: 2px;">
+        Commitment to Clinical Excellence
+      </p>
+    </div>
+</div>
+
+  <div id="app-container" class="hidden">
+    <div id="sidebar">
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+    <img src="https://lh3.googleusercontent.com/d/1fF_cdbj9sL0WnU55dJuBDdvy6ZY7B0pZ" 
+         alt="Logo" 
+         style="height: 35px; width: auto; border-radius: 5px;">
+    <h5 class="fw-bold mb-0" style="font-size: 1.1rem; letter-spacing: 0.5px; color: white;">ARA LOCUM HUB</h5>
+  </div>
+
+      <div id="m-doc-side" class="role-side hidden">
+        <div class="nav-link active" id="m-booking" onclick="showTab('booking')"><i class="bi bi-calendar3 me-3"></i> Book Slot</div>
+        <div class="nav-link" id="m-status" onclick="showTab('status')"><i class="bi bi-info-circle me-3"></i> My Status</div>
+        <div class="nav-link" id="m-announcement" onclick="showTab('announcement')"><i class="bi bi-megaphone me-3"></i> Announcements</div>
+        <div class="nav-link" id="m-feedback" onclick="showTab('feedback')"><i class="bi bi-chat-heart me-3"></i> My Feedback</div>
+        <div class="nav-link" id="m-profile" onclick="showTab('profile')"><i class="bi bi-person-circle me-3"></i> My Profile</div>
+      </div>
+
+      <div id="m-admin-side" class="role-side hidden">
+        <div class="nav-link active" id="m-admin-dash" onclick="showTab('admin-dash')">
+          <i class="bi bi-speedometer2 me-3"></i> Dashboard <span class="dot-notify"></span>
+        </div>
+        <div class="nav-link" id="m-admin-cal" onclick="showTab('admin-cal')">
+          <i class="bi bi-calendar-range me-3"></i> Schedule
+        </div>
+        <div class="nav-link" id="m-admin-tasks" onclick="showTab('admin-tasks')">
+          <i class="bi bi-list-task me-3"></i> Approvals <span class="dot-notify"></span>
+        </div>
+        
+        <div class="nav-link" id="m-admin-ann" onclick="showTab('admin-ann')">
+          <i class="bi bi-pencil-square me-3"></i> Manage News
+        </div>
+
+        <div class="nav-link" id="m-admin-award" onclick="showTab('admin-award'); loadAwardDoctorList();">
+          <i class="bi bi-trophy-fill me-3 text-warning"></i> Give Award
+        </div>
+        
+
+        <div class="nav-link" id="m-admin-fb" onclick="showTab('admin-fb')"><i class="bi bi-chat-left-text me-3"></i> Feedback</div>
+        <div class="nav-link" id="m-admin-dir" onclick="showTab('admin-dir')"><i class="bi bi-people me-3"></i> Directory</div>
+        <div class="nav-link" id="m-admin-key" onclick="showTab('admin-key')"><i class="bi bi-plus-circle me-3"></i> Key-in Slot</div>
+      </div>
+
+      <div class="sidebar-label">Medical Tools</div>
+      <a class="nav-link" href="#" onclick="window.open('https://www.acadmed.org.my/index.cfm?&menuid=67', '_blank');"><i class="bi bi-book me-3"></i> CPG Malaysia</a>
+      <a class="nav-link" href="#" onclick="window.open('https://www.mdcalc.com/', '_blank');"><i class="bi bi-calculator me-3"></i> MDCalc</a>
+      <a class="nav-link" href="#" onclick="window.open('https://sites.google.com/moh.gov.my/nag/contents/section-c-clinical-pathways-in-primary-care?authuser=0', '_blank');"><i class="bi bi-file-earmark-pdf me-3"></i> NAG 2024</a>
+      <div class="nav-link" id="m-peds-calc" onclick="showTab('peds-calc')">
+        <i class="bi bi-calculator-fill me-3"></i> Pediatric Dose Calc
+      </div>
+      
+      <hr style="opacity: 0.1; margin: 20px 0;">
+      
+      <div class="nav-link text-danger fw-bold" onclick="doLogout()" 
+           style="cursor: pointer; background: rgba(255, 59, 48, 0.1); border-radius: 12px; margin-bottom: 100px;">
+        <i class="bi bi-box-arrow-left me-3"></i> Sign Out
+      </div>
+
+    </div> <div id="bottom-nav"></div>
+
+    <div id="content">
+      <h4 id="view-title" class="fw-bold text-primary mb-4" style="color: var(--navy) !important;">Loading...</h4>
+      
+      <div id="v-booking" class="view hidden">
+        <div id="booking-warning" class="alert alert-danger hidden py-2 mb-3" style="border-radius:12px;">
+          Incomplete profile. Please update profile to book slots.
+        </div>
+        
+        <div class="card border-start border-4 border-info mb-3">
+          <p class="text-muted small mb-0">
+            <i class="bi bi-info-circle me-1"></i> 
+            <strong>Note:</strong> Please click on the available slot on the calendar to book.
+          </p>
+        </div>
+
+        <div id="calendar-booking"></div>
+
+        <div class="d-flex gap-3 mt-2 mb-3 px-2 justify-content-center">
+          <div class="d-flex align-items-center" style="font-size: 10px; font-weight: 700; color: #001F3F;">
+            <span style="width: 12px; height: 12px; background: #001F3F; border-radius: 4px; display: inline-block; margin-right: 6px;"></span> 
+            SERI KEMBANGAN (SK)
+          </div>
+          <div class="d-flex align-items-center" style="font-size: 10px; font-weight: 700; color: #064e3b;">
+            <span style="width: 12px; height: 12px; background: #064e3b; border-radius: 4px; display: inline-block; margin-right: 6px;"></span> 
+            KAJANG (KJ)
+          </div>
+        </div>
+
+        <div class="card mt-4 bg-light border-0 shadow-none" style="border-radius: 15px; color: #444;">
+          <h6 class="fw-bold text-primary mb-3" style="color: var(--navy) !important;"><i class="bi bi-info-circle-fill"></i> DETAILS RATE & REMARKS</h6>
+          
+          <div class="mb-4">
+            <p class="mb-2 fw-bold text-danger border-bottom pb-1" style="font-size: 13px;">LONG HOURS SLOT</p>
+            <div class="ps-2 small" style="line-height: 1.6;">
+              • 8am - 6pm: <b>RM 45/h</b> with incentives<br>
+              • 6pm - 11pm: <b>RM 50/h</b> with incentives<br>
+              • 11pm - 8am: <b>Adjusted flat rate</b> with incentives based on patient count:<br>
+              <span class="ms-3 text-muted">0-10 pt: RM 300 | 11-15 pt: RM 350 | >15 pt: RM 400</span>
+            </div>
+          </div>
+          
+          <div>
+            <p class="mb-2 fw-bold text-success border-bottom pb-1" style="font-size: 13px;">SHORT HOURS / FUN RUN SLOT</p>
+            <div class="ps-2 small" style="line-height: 1.6;">
+              • Time: <b>6PM - 10PM</b> 
+              • Payment rate: <b>RM 45/h</b> with incentives (Paid via Cash)
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+      <div id="v-announcement" class="view hidden">
+        <div class="card mb-3 border-0 shadow-sm bg-primary bg-opacity-10 d-md-none" style="border-radius:15px;">
+          <div class="card-body">
+            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-briefcase-fill me-2"></i>Medical Toolkit</h6>
+            <div class="d-grid gap-2">
+              <button class="btn btn-white btn-sm text-start border shadow-sm bg-white p-3" onclick="window.open('https://sites.google.com/moh.gov.my/nag/contents/section-c-clinical-pathways-in-primary-care?authuser=0', '_blank');" style="border-radius:12px;">
+                <i class="bi bi-file-earmark-pdf text-primary me-2"></i> NAG 2024
+              </button>
+              <button class="btn btn-white btn-sm text-start border shadow-sm bg-white p-3" onclick="window.open('https://www.acadmed.org.my/index.cfm?&menuid=67', '_blank');" style="border-radius:12px;">
+                <i class="bi bi-book text-primary me-2"></i> CPG Malaysia
+              </button>
+              <button class="btn btn-white btn-sm text-start border shadow-sm bg-white p-3" onclick="window.open('https://www.mdcalc.com/', '_blank');" style="border-radius:12px;">
+                <i class="bi bi-calculator-fill text-primary me-2"></i> Open MDCalc
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4 border-start border-4 border-primary">
+          <h5 class="fw-bold text-primary mb-3"><i class="bi bi-megaphone me-2"></i>Latest Announcements</h5>
+          <div id="announce-display" style="white-space: pre-wrap; line-height: 1.6;">Loading...</div>
+        </div>
+      </div>
+
+      <div id="v-status" class="view hidden">
+        <div id="calendar-status"></div>
+        <div class="card mt-4">
+          <h6 class="fw-bold mb-3">Application Records</h6>
+          <div id="status-list"></div>
+        </div>
+      </div>
+
+      <div id="v-feedback" class="view hidden">
+        <div class="card bg-info bg-opacity-10 border-0 mb-4">
+          <small><i class="bi bi-shield-lock-fill me-1"></i> "Patient feedback is confidential and visible only to you. The feedback is collected from Google Reviews and Google Form submissions."
+.</small>
+        </div>
+        <div id="feedback-list"></div>
+      </div>
+
+    <div id="v-profile" class="view hidden">
+  <div class="card aracoins-card mb-4 shadow-lg">
+    <div class="card-body p-4 text-center">
+      <div class="d-flex justify-content-between align-items-start mb-4 text-start">
+        <div>
+          <h6 class="text-secondary small fw-bold mb-0 text-uppercase" style="font-size: 10px;">Total Aracoins</h6>
+          <h1 class="display-5 fw-bold text-white mb-0" id="profile-coins">0</h1>
+        </div>
+        <i class="bi bi-award-fill text-warning fs-1"></i>
+      </div>
+      <h6 class="text-secondary fw-bold mb-3 text-uppercase text-start" style="font-size: 10px;">Achievement Badges</h6>
+      <div id="badge-container" class="text-center"></div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <h5 class="fw-bold mb-4">Update Profile</h5>
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="small fw-bold">Email Address *</label>
+        <input type="email" id="u-email" class="form-control p-2" placeholder="dr_ara@example.com">
+      </div>
+      <div class="col-12">
+        <label class="small fw-bold">Workplace (Optional)</label>
+        <input type="text" id="u-tempat" class="form-control p-2">
+      </div>
+      <div class="col-md-6">
+        <label class="small fw-bold" id="label-mmc">MMC Number *</label>
+        <input type="text" id="u-mmc" class="form-control mb-2 p-2" placeholder="e.g. 12345">
+        <input type="file" id="f-mmc" class="form-control form-control-sm">
+        <div id="mmc-view-area"></div> 
+      </div>
+      <div class="col-md-6">
+        <label class="small fw-bold" id="label-apc">APC 2026 (Upload Fail) *</label>
+        <input type="file" id="f-apc" class="form-control form-control-sm">
+        <div id="apc-view-area"></div> 
+      </div>
+      <div class="col-12 mt-3">
+        <label class="small fw-bold d-block mb-2">Indemnity Insurance (Optional)</label>
+        <div class="d-flex gap-4 mb-2">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="indemnity_status" id="has_indemnity" value="Ada" onchange="document.getElementById('indemnity-box').style.display='block'">
+            <label class="form-check-label small" for="has_indemnity">Ada</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="indemnity_status" id="no_indemnity" value="Tiada" onchange="document.getElementById('indemnity-box').style.display='none'" checked>
+            <label class="form-check-label small" for="no_indemnity">Tiada</label>
+          </div>
+        </div>
+        <div id="indemnity-box" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px dashed #ccc;">
+          <label class="small fw-bold mb-1">Upload Indemnity Policy (Image/PDF)</label>
+          <input type="file" id="f-indemnity" class="form-control form-control-sm">
+          <div id="ind-view-area"></div> 
+        </div>
+      </div>
+      <div class="col-12 mt-4">
+        <button class="btn btn-primary w-100 py-3 fw-bold" id="btn-save" onclick="saveProfile()">Save Profile Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div id="extra-profile-tools" class="hidden">
+    <div class="mt-4 mb-5 d-md-none text-center">
+      <div class="card border-0 shadow-sm mb-4" style="border-radius:20px; background: #f0f7ff; padding: 20px;">
+          <h6 class="fw-bold text-primary mb-3"><i class="bi bi-star-fill me-2"></i>Performance</h6>
+          <button class="btn btn-primary w-100 py-3 fw-bold shadow-sm" onclick="showTab('feedback')" style="border-radius:15px; background: var(--navy) !important;">
+            <i class="bi bi-chat-heart me-2"></i> View My Patient Feedback
+          </button>
+          <small class="text-muted d-block mt-2" style="font-size: 11px;">View your ratings and comments from patients.</small>
+      </div>
+      
+      <button class="btn btn-danger w-100 py-3 fw-bold shadow-sm" style="border-radius:15px;" onclick="doLogout()">
+        <i class="bi bi-box-arrow-left me-2"></i> Logout From Account
+      </button>
+      <small class="text-muted d-block mt-3">ARA LOCUM HUB v2.0</small>
+    </div>
+
+    <div class="card border-start border-4 border-danger">
+      <h5 class="fw-bold text-danger mb-3"><i class="bi bi-key-fill me-2"></i>Security</h5>
+      <p class="small text-muted mb-4">You can update your password here. All passwords are encrypted.</p>
+      <div class="mb-3">
+        <label class="small fw-bold">New Password</label>
+        <input type="password" id="new-pass" class="form-control p-3" style="background:#f9f9f9; border:none; border-radius:12px;" placeholder="Minimum 6 characters">
+      </div>
+      <button class="btn btn-outline-danger w-100 py-2 fw-bold" id="btn-pass" style="border-radius:12px;" onclick="updatePassword()">Update Password</button>
+    </div>
+  </div>
+
+
+      <div id="v-admin-dash" class="view hidden">
+    
+    <div class="card mb-4 border-0 shadow-sm" style="border-radius: 20px; background: #f0f7ff;">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3">
+          <i class="bi bi-filter-square me-2 text-primary"></i>Dashboard Filter (Total Slots & Charts)
+        </h6>
+        <div class="row g-2">
+          <div class="col-6">
+            <select id="monthSelectInput" class="form-select p-3" onchange="loadAdminDash()" style="border-radius: 12px; border: none;">
+              <option value="01">Jan</option><option value="02">Feb</option>
+              <option value="03">Mar</option><option value="04">Apr</option>
+              <option value="05">May</option><option value="06">Jun</option>
+              <option value="07">Jul</option><option value="08">Aug</option>
+              <option value="09">Sep</option><option value="10">Oct</option>
+              <option value="11">Nov</option><option value="12">Dec</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <select id="yearSelectInput" class="form-select p-3" onchange="loadAdminDash()" style="border-radius: 12px; border: none;">
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-6">
+        <div class="card p-4 text-center border-bottom border-primary border-4 shadow-sm">
+          <h6 class="text-muted small fw-bold">Total Slots</h6>
+          <b id="stat-total" class="h2 text-primary">0</b>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="card p-4 text-center border-bottom border-warning border-4 shadow-sm">
+          <h6 class="text-muted small fw-bold">Pending</h6>
+          <b id="stat-pending" class="h2 text-warning">0</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-line me-2 text-primary"></i>Most Active Doctors (Slots)</h6>
+      <div style="position: relative; height:230px;"><canvas id="doctorChart"></canvas></div>
+    </div>
+
+    <div class="card mt-4">
+      <h6 class="fw-bold mb-3"><i class="bi bi-trophy-fill me-2 text-warning"></i>Aracoins Leaderboard</h6>
+      <div style="position: relative; height:230px;"><canvas id="coinChart"></canvas></div>
+    </div>
+    
+    <div class="card mt-4 border-0 shadow-sm" style="border-radius: 20px;">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3"><i class="bi bi-person-badge me-2 text-primary"></i>Filter Performance Records</h6>
+        <div class="mb-3">
+            <select id="drSelectInput" class="form-select p-3" style="border-radius: 12px; border: 1px solid #eee; background-color: #f8f9fa;">
+              <option value="">-- Select Doctor --</option>
+            </select>
+        </div>
+        <button class="btn text-white w-100 py-3 fw-bold shadow-sm" style="background:#001F3F; border-radius: 12px;" onclick="loadAdminDash()">
+          VIEW PERFORMANCE
+        </button>
+        <div id="admin-past-list" class="mt-4"></div>
+      </div>
+    </div>
+
+</div>
+
+      <div id="v-admin-cal" class="view hidden">
+        <div class="card border-0 shadow-none bg-transparent p-0 mb-3">
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary px-3" onclick="filterCal('Seri Kembangan')">SK</button>
+            <button class="btn btn-sm btn-outline-success px-3" onclick="filterCal('Kajang')">Kajang</button>
+            <button class="btn btn-sm btn-secondary px-3" onclick="filterCal('All')">All</button>
+          </div>
+        </div>
+        <div id="calendar-admin"></div>
+      </div>
+
+      <div id="v-admin-tasks" class="view hidden">
+  <h6 class="fw-bold mb-3">Pending Approvals</h6>
+  <div id="admin-task-list"></div>
+
+  <div class="mt-5 mb-5">
+    <h6 class="fw-bold mb-3"><i class="bi bi-person-plus-fill me-2 text-primary"></i>New Locum Applications</h6>
+    <div class="card border-0 shadow-sm" style="border-radius: 20px; background: white; overflow: hidden;">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size: 11px;">
+          <thead class="table-light">
+            <tr style="font-size: 10px; text-transform: uppercase; color: #8E8E93;">
+              <th class="ps-3">Doctor</th>
+              <th>Details</th>
+              <th class="text-end pe-3">Action</th>
+            </tr>
+          </thead>
+          <tbody id="locum-app-body">
+            <tr><td colspan="3" class="text-center p-4 text-muted">Loading applications...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="pb-5">
+    <div class="card border-0 shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #fffcf0 0%, #fff9e6 100%); border: 1px dashed #ffcc00 !important;">
+      <div class="card-body text-center py-4">
+        <div class="mb-3">
+          <i class="bi bi-trophy-fill text-warning" style="font-size: 2.5rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));"></i>
+        </div>
+        <h6 class="fw-bold text-dark">Recognition & Rewards</h6>
+        <p class="small text-muted mb-4">Reward a doctor for their excellent performance.</p>
+        <button class="btn btn-warning w-100 fw-bold py-3 shadow-sm text-dark" 
+                style="border-radius: 15px; background: #FFCC00; border: none;" 
+                onclick="showTab('admin-award'); loadAwardDoctorList();">
+          <i class="bi bi-plus-circle-fill me-2"></i> GIVE AWARD NOW
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <div id="v-admin-award" class="view hidden">
+  
+  <div class="card shadow-sm" style="border-radius: 20px;">
+    <h5 class="fw-bold mb-4"><i class="bi bi-trophy-fill me-2 text-warning"></i>Give Doctor Award</h5>
+    
+    <div class="mb-3">
+      <label class="small fw-bold mb-1">Select Doctor</label>
+      <select id="award-dr-list" class="form-select p-3" style="border-radius:12px; background:#f8f9fa; border:none;">
+        <option value="">Loading doctors...</option>
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label class="small fw-bold mb-1">Select Achievement (Official Points)</label>
+      <select id="award-type" class="form-select p-3" style="border-radius:12px; background:#f8f9fa; border:none;">
+        <option value="20">Team Favorite</option>
+        <option value="15">Heart Winner</option>
+        <option value="15">Last Minute Savior</option>
+        <option value="10">Iron Doctor</option>
+        <option value="10">The Unstoppable</option>
+        <option value="10">The Diligent Doc</option>
+      </select>
+    </div>
+
+    <button id="btn-give-award" class="btn btn-primary w-100 py-3 fw-bold" onclick="submitAward()">Confirm & Send Award</button>
+  </div> 
+
+  <div class="card shadow-sm mt-4" style="border-radius: 20px; border: 2px solid #ff85a1; background: #fff5f7;">
+    <div class="card-body">
+      <h6 class="fw-bold" style="color: #d63384;"><i class="bi bi-heart-fill me-2"></i> Heart Winner Scanner</h6>
+      <p class="text-muted" style="font-size: 11px;">Based on 5-star ratings in the <b>Manual Feedback</b> tab.</p>
+      
+      <div id="heart-suggestions" class="list-group list-group-flush mt-2">
+         <button class="btn btn-sm btn-danger w-100 py-3 fw-bold" onclick="loadHeartWinners()" style="border-radius: 12px; background: #d63384; border: none;">
+           <i class="bi bi-search me-2"></i> SCAN FOR GOOGLE REVIEWS
+         </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-4" style="border-radius: 20px; border: 2px dashed #FFCC00; background: #FFFDF5;">
+    <div class="card-body text-center py-4">
+      <div class="mb-3">
+        <i class="bi bi-stars text-warning" style="font-size: 2.5rem;"></i>
+      </div>
+      <h6 class="fw-bold text-dark">Automated Monthly Reward</h6>
+      <p class="text-muted small mb-4">Scan & award <b>"The Unstoppable"</b> badge to all qualified doctors for the entire month instantly.</p>
+      
+      <button class="btn btn-warning w-100 py-3 fw-bold shadow-sm" 
+              onclick="promptMonthlyReward()" 
+              style="border-radius: 15px; background: #FFCC00; border: none; color: #001F3F;">
+        <i class="bi bi-cpu-fill me-2"></i> RUN MONTHLY SCANNER
+      </button>
+      
+      <small class="text-muted d-block mt-3" style="font-size: 10px;">
+        *Criteria: Min 2 Approved Slots & 0 Cancellations.
+      </small>
+    </div>
+  </div>
+
+</div>
+
+      <div id="v-admin-ann" class="view hidden">
+        <div class="card shadow-sm" style="border-radius: 20px;">
+          <h5 class="fw-bold mb-4"><i class="bi bi-megaphone me-2"></i>Publish New Announcement</h5>
+          <textarea id="ann-input" class="form-control mb-3" rows="6" 
+            style="border-radius:15px; background:#f8f9fa; border:none; padding:15px;" 
+            placeholder="Type news for doctors here..."></textarea>
+          <button class="btn btn-primary w-100 py-3 fw-bold" onclick="saveAnn()">Update News</button>
+        </div>
+      </div>
+
+      <div id="v-admin-fb" class="view hidden">
+        <div class="card">
+          <select class="form-select mb-4 p-2" style="border-radius:10px;" onchange="renderAdminFB(this.value)">
+            <option value="patientDoc">Patient ➔ Doctor</option>
+            <option value="stafLocum">Staff ➔ Locum</option>
+            <option value="locumClinic">Locum ➔ Clinic</option>
+          </select>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" style="font-size:12px;">
+              <thead id="fb-head" class="table-light"></thead>
+              <tbody id="fb-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="v-admin-dir" class="view hidden">
+        <div id="admin-dir-list"></div>
+      </div>
+
+      <div id="v-admin-key" class="view hidden">
+        <div class="card">
+          <h5 class="fw-bold mb-4">Bulk Create Slots</h5>
+          
+          <div class="mb-3">
+            <label class="small fw-bold">Select Dates</label>
+            <input type="date" class="form-control p-2" id="bulk-date-input" onchange="addBulkDate(this.value)">
+          </div>
+          
+          <div id="selected-dates" class="mb-3 d-flex flex-wrap gap-1"></div>
+          
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="small fw-bold">Branch</label>
+              <select id="k-branch" class="form-select p-2">
+                <option value="Seri Kembangan">Seri Kembangan</option>
+                <option value="Kajang">Kajang</option>
+                <option value="CME / BRIEFING">CME / BRIEFING</option>
+              </select>
+            </div>
+            
+            <div class="col-6">
+              <label class="small fw-bold">Time</label>
+              <input type="text" id="k-time" class="form-control p-2" placeholder="e.g. 9am-5pm">
+            </div>
+          </div>
+          
+          <button class="btn btn-primary w-100 mt-4 py-3 fw-bold" id="btn-bulk" onclick="keyInBulk()">
+            Save All Slots
+          </button>
+        </div>
+      </div>
+      <div id="v-peds-calc" class="view hidden">
+  <div class="card shadow-sm border-0" style="border-radius: 20px; background: white; padding: 25px;">
+    <h5 class="fw-bold text-primary mb-4">
+      <i class="bi bi-calculator-fill me-2" style="color: var(--navy);"></i>Pediatric Dose Calculator
+    </h5>
+    
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="small fw-bold text-muted mb-2">Patient's Weight (kg)</label>
+        <div class="input-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
+          <input type="number" id="c-weight" class="form-control p-3 bg-light border-0" placeholder="0.0">
+          <span class="input-group-text border-0 bg-light text-muted fw-bold">kg</span>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <label class="small fw-bold text-muted mb-2">Drug Strength (Concentration)</label>
+        <div class="row g-2">
+          <div class="col-6">
+            <div class="input-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
+              <input type="number" id="c-mg" class="form-control p-3 bg-light border-0" placeholder="mg">
+              <span class="input-group-text border-0 bg-light text-muted small">mg</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="input-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
+              <input type="number" id="c-ml" class="form-control p-3 bg-light border-0" placeholder="ml">
+              <span class="input-group-text border-0 bg-light text-muted small">ml</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <label class="small fw-bold text-muted mb-2">Target Dose (mg/kg)</label>
+        <div class="input-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
+          <input type="number" id="c-target-dose" class="form-control p-3 bg-light border-0" placeholder="e.g. 15">
+          <span class="input-group-text border-0 bg-light text-muted small">mg/kg</span>
+        </div>
+      </div>
+
+      <div id="dose-result-area" class="col-12 mt-4 p-4 text-center" style="border-radius: 20px; background: #f0f7ff; border: 2px solid #007AFF;">
+        <span class="small text-muted d-block mb-1 text-uppercase fw-bold">Recommended Volume:</span>
+        <h1 class="fw-bold text-primary mb-0" style="font-size: 3rem;"><span id="out-ml">0.00</span> <small style="font-size: 1.2rem;">ml</small></h1>
+      </div>
+
+      <div class="col-12 mt-2">
+        <button class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm" onclick="runPedsCalc()" style="background: var(--navy) !important; border: none;">
+          Calculate Now
+        </button>
+        <button class="btn btn-link w-100 mt-2 text-muted small text-decoration-none" onclick="clearCalc()">Clear All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <div id="v-admin-more" class="view hidden">
+        <div class="card p-2" style="border-radius:20px;">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item p-3 border-bottom d-flex align-items-center" onclick="showTab('admin-fb')" style="cursor:pointer;">
+              <i class="bi bi-chat-left-text me-3 text-primary"></i> <b>Feedback Management</b>
+            </div>
+            <div class="list-group-item p-3 border-bottom d-flex align-items-center" onclick="showTab('admin-dir')" style="cursor:pointer;">
+              <i class="bi bi-people me-3 text-primary"></i> <b>Doctor Directory</b>
+            </div>
+            <div class="list-group-item p-3 border-bottom d-flex align-items-center" onclick="showTab('admin-key')" style="cursor:pointer;">
+              <i class="bi bi-plus-circle me-3 text-primary"></i> <b>Key-in Manual Slot</b>
+            </div>
+            <div class="list-group-item p-3 text-danger d-flex align-items-center" onclick="doLogout()" style="cursor:pointer;">
+              <i class="bi bi-box-arrow-left me-3"></i> <b>Logout From Account</b>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> </div> <script>
+
+    // SEMUA JAVASCRIPT ASAL ANDA DIKEKALKAN DI SINI
+    function clearCalc() {
+      if(document.getElementById('c-mg')) document.getElementById('c-mg').value = '';
+      if(document.getElementById('c-ml')) document.getElementById('c-ml').value = '';
+      if(document.getElementById('c-weight')) document.getElementById('c-weight').value = '';
+      if(document.getElementById('c-target-dose')) document.getElementById('c-target-dose').value = '';
+      if(document.getElementById('dose-result-area')) {
+        document.getElementById('dose-result-area').classList.add('d-none');
+      }
+    }
+
+    let u = {}; 
+    let calBooking, calStatus, calAdmin, myChart;
+    let currentFilter = 'All';
+    let allAdminSlots = []; 
+    let bulkDates = [];
+    let announceCache = "";
+
+    function saveAnn() {
+      const txt = document.getElementById('ann-input').value;
+      if(!txt) { alert("Please enter announcement text."); return; }
+      
+      const btn = document.querySelector('button[onclick="saveAnn()"]');
+      btn.disabled = true;
+      btn.innerText = "Publishing...";
+      
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res);
+        // KEMASKINI CACHE TERUS SUPAYA TIDAK HILANG
+        announceCache = txt; 
+        
+        // KEMASKINI PAPARAN TERUS (JIKA ELEMEN WUJUD)
+        let annDisplay = document.getElementById('announce-display');
+        if(annDisplay) annDisplay.innerText = txt;
+        
+        btn.disabled = false;
+        btn.innerText = "Update News";
+      }).saveAnnouncement(txt);
+    }
+
+    function renderDocChart(pastSlots, directoryData) {
+  // --- CARTA 1: SLOTS COMPLETED (BIRU) ---
+  const counts = {};
+  pastSlots.forEach(s => { 
+    if(s.dr) counts[s.dr] = (counts[s.dr] || 0) + 1; 
+  });
+  
+  const ctx1 = document.getElementById('doctorChart').getContext('2d');
+  if(myChart) myChart.destroy();
+  myChart = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(counts),
+      datasets: [{
+        label: 'Slots Completed',
+        data: Object.values(counts),
+        backgroundColor: '#007AFF',
+        borderRadius: 8
+      }]
+    },
+    options: { 
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  });
+
+  // --- CARTA 2: ARACOINS LEADERBOARD (EMAS) ---
+  if (!directoryData) return; // Elakkan error kalau data tak sampai
+
+  // Tapis doktor yang ada points dan susun dari tinggi ke rendah
+  const sortedCoins = directoryData
+    .filter(d => d.points > 0)
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 10); 
+
+  const ctx2 = document.getElementById('coinChart').getContext('2d');
+  if(window.coinChartInstance) window.coinChartInstance.destroy(); // Destroy jika wujud
+  
+  window.coinChartInstance = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: sortedCoins.map(d => d.nama.split(' ')[0].toUpperCase()), // Ambil nama depan
+      datasets: [{
+        label: 'Aracoins',
+        data: sortedCoins.map(d => d.points),
+        backgroundColor: '#FFCC00', 
+        borderRadius: 8
+      }]
+    },
+    options: { 
+      indexAxis: 'y', // Buat carta melintang (Horizontal)
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true } }
+    }
+  });
+}
+
+    function updateRedDots(pendingCount) {
+      const showDot = pendingCount > 0 ? 'block' : 'none';
+      document.querySelectorAll('.dot-notify').forEach(el => {
+        el.style.display = showDot;
+      });
+    }
+
+    window.onload = function() {
+      const savedUser = localStorage.getItem('ara_hub_user');
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        startApp(userData);
+      }
+    };
+
+    function silentRefresh() {
+      google.script.run.withSuccessHandler(txt => { 
+        announceCache = txt; 
+        let annDisplay = document.getElementById('announce-display');
+        if(annDisplay) annDisplay.innerText = txt || "No updates available.";
+      }).getAnnouncement();
+      if (u.role === 'Admin') {
+        if(calAdmin) calAdmin.refetchEvents();
+        loadAdminDash();
+      } else {
+        if(calBooking) calBooking.refetchEvents();
+      }
+    }
+    setInterval(silentRefresh, 30000);
+
+    function doLogin() {
+      const ph = document.getElementById('phone').value;
+      const ps = document.getElementById('pass').value;
+      if(!ph || !ps) { alert("Please enter both Phone Number and Password."); return; }
+      const loginBtn = document.querySelector("#login-page button");
+      loginBtn.innerText = "Authenticating...";
+      loginBtn.disabled = true;
+      google.script.run.withSuccessHandler(res => {
+        loginBtn.innerText = "Sign In";
+        loginBtn.disabled = false;
+        if(res.success) {
+          localStorage.setItem('ara_hub_user', JSON.stringify(res));
+          startApp(res);
+        } else {
+          alert("❌ " + (res.message || "Invalid Phone Number or Password."));
+        }
+      }).loginUser(ph, ps);
+    }
+
+    function startApp(res) {
+  u = res;
+
+  // INTEGRASI PENTING: Kemaskini memori browser dengan data terbaru dari database
+  localStorage.setItem('ara_hub_user', JSON.stringify(res));
+
+  document.getElementById('login-page').classList.add('hidden');
+  document.getElementById('app-container').classList.remove('hidden');
+  document.querySelectorAll('.role-side').forEach(el => el.classList.add('hidden'));
+
+  google.script.run.withSuccessHandler(txt => { announceCache = txt; }).getAnnouncement();
+
+  // --- LANGKAH 1: Benarkan Admin & Staff masuk ---
+  if (u.role === 'Admin' || u.role === 'Staff') {
+    document.getElementById('m-admin-side').classList.remove('hidden');
+    initAdminNav();
+    
+    // Jika Staff, kita buka Schedule terus. Jika Admin, buka Dashboard macam biasa.
+    if (u.role === 'Staff') {
+      showTab('admin-cal'); 
+    } else {
+      showTab('admin-dash');
+    }
+  } else {
+    document.getElementById('m-doc-side').classList.remove('hidden');
+
+    // --- SYNC DATA TERBARU DARI SHEET ---
+    syncUserProfile();
+
+    const welcomeMsg = `Welcome, Dr. ${u.nama}! Thank you for being part of Klinik ARA 24 Jam.`;
+    const titleContainer = document.getElementById('view-title');
+    if (titleContainer) {
+      titleContainer.innerHTML = `
+        <div id="welcome-note" style="font-size: 18px; font-weight: 500; color: #666; margin-bottom: 4px; line-height: 1.4; text-transform: none;">${welcomeMsg}</div>
+        <span id="tab-title-text">BOOK SLOT</span>`;
+    }
+
+    // Panggil fungsi untuk melukis medal Apple Fitness
+    renderBadges();
+
+    // --- KEMASKINI PROFILE DATA ---
+    if (document.getElementById('u-email')) {
+      document.getElementById('u-email').value = u.email || "";
+      document.getElementById('u-tempat').value = u.tempatKerja || "";
+      document.getElementById('u-mmc').value = (u.mmc || "").split('|')[0].trim();
+    }
+
+    initDoctorNav();
+    checkProfileStatus();
+    initCalendars();
+    showTab('booking');
+  }
+}
+    function syncUserProfile() {
+  google.script.run.withSuccessHandler(userData => {
+    if(userData) {
+      // 1. Kemaskini memori aplikasi (objek u)
+      u.points = userData.points;
+      u.badges = userData.badges;
+      
+      // 2. Kemaskini memori telefon (localStorage) supaya tak hilang bila refresh
+      localStorage.setItem('ara_hub_user', JSON.stringify(u));
+      
+      // 3. Kemaskini baki Aracoins di skrin Profile
+      const coinEl = document.getElementById('profile-coins');
+      if(coinEl) coinEl.innerText = u.points;
+      
+      // 4. Lukis semula medal (supaya medal baru terus "menyala")
+      renderBadges();
+    }
+  }).getLatestUserProfile(u.phone);
+}
+
+    function doLogout() {
+      if(confirm("Confirm Logout?")) {
+        // 1. Padam data dalam memori terus
+        localStorage.removeItem('ara_hub_user');
+        localStorage.clear(); // Tambahan: Cuci semua baki cache
+
+        // 2. Sorok App Container & Tunjuk Login Page (Serta-merta)
+        document.getElementById('app-container').classList.add('hidden');
+        document.getElementById('login-page').classList.remove('hidden');
+
+        // 3. Reset objek user dalam script
+        u = {};
+
+        // 4. Paksa reload skrin
+        setTimeout(() => {
+          location.reload();
+        }, 100); 
+      }
+    }
+
+    function initDoctorNav() {
+      document.getElementById('bottom-nav').innerHTML = `
+        <div class="bn-item active" id="bn-booking" onclick="showTab('booking')"><i class="bi bi-calendar3"></i>Book</div>
+        <div class="bn-item" id="bn-peds-calc" onclick="showTab('peds-calc')"><i class="bi bi-calculator"></i>Calc</div>
+        <div class="bn-item" id="bn-status" onclick="showTab('status')"><i class="bi bi-info-circle"></i>Status</div>
+        <div class="bn-item" id="bn-announcement" onclick="showTab('announcement')"><i class="bi bi-megaphone"></i>Info</div>
+        <div class="bn-item" id="bn-profile" onclick="showTab('profile')"><i class="bi bi-person-circle"></i>Profile</div>`;
+      document.getElementById('bottom-nav').style.display = 'flex';
+    }
+
+    function initAdminNav() {
+      document.getElementById('bottom-nav').innerHTML = `
+        <div class="bn-item active" id="bn-admin-dash" onclick="showTab('admin-dash')"><i class="bi bi-speedometer2"></i>Dash</div>
+        <div class="bn-item" id="bn-admin-cal" onclick="showTab('admin-cal')"><i class="bi bi-calendar-range"></i>Sch</div>
+        <div class="bn-item" id="bn-admin-tasks" onclick="showTab('admin-tasks')"><i class="bi bi-list-task"></i>Tasks</div>
+        <div class="bn-item" id="bn-admin-ann" onclick="showTab('admin-ann')"><i class="bi bi-megaphone"></i>News</div>
+        <div class="bn-item" id="bn-admin-more" onclick="showTab('admin-more')"><i class="bi bi-grid-fill"></i>More</div>`;
+      document.getElementById('bottom-nav').style.display = 'flex';
+    }
+
+    function initAdminNav() {
+      // Check role untuk tentukan butang mana yang "active" secara default
+      const isStaff = (u.role === 'Staff');
+
+      document.getElementById('bottom-nav').innerHTML = `
+        <div class="bn-item ${isStaff ? '' : 'active'}" id="bn-admin-dash" onclick="showTab('admin-dash')">
+          <i class="bi bi-speedometer2"></i>Dash
+        </div>
+        <div class="bn-item ${isStaff ? 'active' : ''}" id="bn-admin-cal" onclick="showTab('admin-cal')">
+          <i class="bi bi-calendar-range"></i>Sch
+        </div>
+        <div class="bn-item" id="bn-admin-tasks" onclick="showTab('admin-tasks')">
+          <i class="bi bi-list-task"></i>Tasks
+        </div>
+        <div class="bn-item" id="bn-admin-ann" onclick="showTab('admin-ann')">
+          <i class="bi bi-megaphone"></i>News
+        </div>
+        <div class="bn-item" id="bn-admin-more" onclick="showTab('admin-more')">
+          <i class="bi bi-grid-fill"></i>More
+        </div>`;
+      document.getElementById('bottom-nav').style.display = 'flex';
+    }
+
+    function showTab(t) {
+  // --- GATEKEEPER ROLE STAFF ---
+  const adminOnlyTabs = ['admin-dash', 'admin-tasks', 'admin-ann', 'admin-award', 'admin-fb', 'admin-dir', 'admin-key'];
+  
+  if (u.role === 'Staff' && adminOnlyTabs.includes(t)) {
+    alert("❌ ACCESS DENIED: You are not authorized to view this module");
+    return; // Berhenti di sini, tab takkan bertukar
+  }
+
+      // 1. Sorok semua view utama
+      document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+      const target = document.getElementById('v-' + t);
+      if(target) target.classList.remove('hidden');
+
+      // 2. Kawalan Logout & Security (Hanya muncul di Profile Doktor)
+      const extraTools = document.getElementById('extra-profile-tools');
+      if(extraTools) {
+        // Jika tab Profile dibuka, tunjukkan butang logout/security
+        if(t === 'profile') { 
+          extraTools.classList.remove('hidden'); 
+        } 
+        // Jika tab lain dibuka, sorokkan
+        else { 
+          extraTools.classList.add('hidden'); 
+        }
+      }
+
+      // 3. Tambahan untuk Admin (Supaya Dashboard Admin tak terganggu)
+      if(t.includes('admin')) {
+         if(extraTools) extraTools.classList.add('hidden');
+      }
+
+      // 4. Pengurusan Tajuk (Supaya Welcome Message Kekal)
+      let title = t.toUpperCase().replace('ADMIN-', 'ADMIN ').replace('PEDS-', 'PEDIATRIC ').replace('MORE', 'MORE TOOLS').replace('DIR', 'DIRECTORY'); 
+      
+      const tabTitleEl = document.getElementById('tab-title-text');
+      if(tabTitleEl) {
+        // Jika elemen khas wujud (untuk Doktor), tukar tajuk bawah sahaja (Welcome Note selamat)
+        tabTitleEl.innerText = title; 
+      } else {
+        // Jika elemen khas tiada (untuk Admin), tukar keseluruhan tajuk
+        const fullTitleEl = document.getElementById('view-title');
+        if (fullTitleEl) fullTitleEl.innerText = title;
+      }
+
+      document.querySelectorAll('.bn-item, .nav-link').forEach(i => i.classList.remove('active'));
+      const activeBN = document.getElementById('bn-'+t);
+      if(activeBN) activeBN.classList.add('active');
+      const activeML = document.getElementById('m-'+t);
+      if(activeML) activeML.classList.add('active');
+
+      if(t === 'announcement') { document.getElementById('announce-display').innerText = announceCache || "No updates available."; }
+      if(t === 'booking' && calBooking) { calBooking.render(); setTimeout(() => calBooking.updateSize(), 300); }
+      if(t === 'status') { if(calStatus) { calStatus.render(); calStatus.updateSize(); } loadStatus(); }
+      if(t === 'feedback') { loadFeedback(); }
+      
+      if(t === 'admin-dash') {
+        setTimeout(() => {
+          const mInput = document.getElementById('monthSelectInput');
+          const yInput = document.getElementById('yearSelectInput');
+          const today = new Date();
+          const currentMonth = (today.getMonth() + 1).toString().padStart(2, '0');
+          const currentYear = today.getFullYear().toString();
+
+          // ZASSS! Jika dropdown masih Januari (01) sedangkan sekarang Mac (03), kita paksa tukar!
+          if (mInput && mInput.value === "01" && currentMonth !== "01") {
+            mInput.value = currentMonth;
+            yInput.value = currentYear;
+            console.log("Paksa Mac! Sebab tadi dia sangkut kat Jan.");
+          }
+          
+          loadAdminDash(); 
+        }, 200); // Kita up sikit delay ke 200ms bagi dia betul-betul ready
+      }
+      if(t === 'admin-cal') { if(calAdmin) { calAdmin.render(); calAdmin.updateSize(); } else { initAdminCalendar(); } }
+      if(t === 'admin-tasks') { 
+        loadAdminTasks(); 
+        loadNewLocumList(); 
+      }
+      if(t === 'admin-dir') loadAdminDirectory();
+      if(t === 'admin-fb') { loadAdminFB(); renderAdminFB('patientDoc'); }
+    }
+    
+    function initCalendars() {
+      // 1. KALENDAR BOOKING (Hanya tunjuk slot yang Available SAHAJA dan Dr Kosong)
+      calBooking = new FullCalendar.Calendar(document.getElementById('calendar-booking'), {
+        initialView: 'dayGridMonth', height: 'auto',
+        headerToolbar: { left: 'prev,next', center: 'title', right: 'today' },
+        eventContent: function(arg) { return { html: '<div class="p-1" style="line-height:1.2; font-size:11px;">' + arg.event.title + '</div>' }; },
+        
+        // --- GABUNGAN TAPISAN KETAT & WARNA PREMIUM ---
+        events: function(info, success) { 
+          google.script.run.withSuccessHandler(data => { 
+            // Kekalkan Tapisan Ketat Dr
+            const displayData = data.filter(s => 
+              s.status.toLowerCase() === 'available' && (!s.dr || s.dr.trim() === "")
+            );
+            
+            success(displayData.map(s => {
+              // Logik Warna & Nama Premium
+              let slotColor = '#001F3F'; // Premium Navy (SK)
+              let shortName = "SK";
+
+              if (s.cawangan.includes('Kajang')) {
+                slotColor = '#064e3b'; // Premium Emerald (KJ)
+                shortName = "KJ";
+              }
+
+              return { 
+                id: s.id, 
+                title: shortName + " | " + s.masa, 
+                start: formatISO(s.tarikh), 
+                color: slotColor 
+              };
+            })); 
+          }).getInitialData(); 
+        },
+
+        eventClick: function(info) { 
+        // 1. Tunjukkan loading overlay masa tengah check data Live
+        document.getElementById('loading-overlay').classList.remove('hidden');
+
+        // 2. Tanya Server secara LIVE (Check terus ke Google Sheet)
+        google.script.run.withSuccessHandler(isLiveComplete => {
+          document.getElementById('loading-overlay').classList.add('hidden');
+
+          if (!isLiveComplete) {
+            alert("⚠️ INCOMPLETE PROFILE. Please update details (MMC/APC/Email) in Profile tab."); 
+            showTab('profile'); 
+            return; 
+          }
+
+          // 3. Ambil tarikh dari slot (Format: 24/02)
+          const tarikhSlot = info.event.start.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' });
+
+          if (confirm(`Apply for slot: ${info.event.title} on ${tarikhSlot}?`)) {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            google.script.run.withSuccessHandler(m => { 
+              document.getElementById('loading-overlay').classList.add('hidden');
+              alert(m); 
+              calBooking.refetchEvents(); 
+            }).bookSlot(info.event.id, u.nama, u.phone); 
+          }
+        }).checkLiveProfileStatus(u.phone); 
+      } // <--- Tutup function eventClick
+    }); // <--- Tutup FullCalendar (Ini yang hilang tadi!)
+
+      // 2. KALENDAR STATUS SAYA (Clean & Stacked View)
+      calStatus = new FullCalendar.Calendar(document.getElementById('calendar-status'), {
+        initialView: 'dayGridMonth', height: 'auto',
+        headerToolbar: { left: 'prev,next', center: 'title', right: 'today' },
+        // Gunakan eventContent untuk susun teks bertingkat
+        eventContent: function(arg) {
+          let parts = arg.event.title.split('|');
+          return { 
+            html: `<div style="line-height:1.1; padding:2px; font-size:9px;">
+                    <div style="font-weight:800; border-bottom:1px solid rgba(255,255,255,0.2); margin-bottom:2px;">${parts[0]}</div>
+                    <div style="font-weight:400;">${parts[1]}</div>
+                    <div style="font-style:italic; opacity:0.8;">${parts[2]}</div>
+                   </div>` 
+          };
+        },
+        events: function(info, success) { 
+          google.script.run.withSuccessHandler(data => { 
+            success(data.map(s => {
+              // Kita ringkaskan info untuk dipecahkan oleh eventContent tadi
+              // Format: Cawangan | Masa | Status
+              let compactTitle = `${s.cawangan}|${s.masa}|${s.status.toUpperCase()}`;
+
+              return { 
+                title: compactTitle, 
+                start: formatISO(s.tarikh), 
+                color: s.status === 'Approved' ? '#064e3b' : '#b45309', 
+                textColor: 'white' 
+              };
+            })); 
+          }).getMyApplications(u.phone); 
+        }
+      });
+
+      // Pastikan kedua-dua render
+      calBooking.render();
+      calStatus.render();
+    }
+
+    function initAdminCalendar() {
+  if(calAdmin) { calAdmin.render(); calAdmin.updateSize(); return; }
+  calAdmin = new FullCalendar.Calendar(document.getElementById('calendar-admin'), {
+    initialView: 'dayGridMonth', height: 'auto',
+    headerToolbar: { left: 'prev,next', center: 'title', right: 'today' },
+    events: function(info, success) { 
+      google.script.run.withSuccessHandler(data => { 
+        // BARIS PENTING: Cuci semua event sedia ada sebelum lukis yang baru
+        calAdmin.removeAllEvents(); 
+        
+        allAdminSlots = data.map(s => {
+          // Tentukan warna berdasarkan Status dan Cawangan
+          let slotColor = '#f0f0f0'; // Default: Available (Kelabu)
+          let txtColor = 'black';
+
+          if (s.status === 'Approved') {
+            txtColor = 'white';
+            // WARNA CAWANGAN: SK (Biru), Kajang (Hijau)
+            if (s.cawangan.includes('Seri Kembangan')) {
+              slotColor = '#007AFF'; // Biru iOS
+            } else if (s.cawangan.includes('Kajang')) {
+              slotColor = '#34c759'; // Hijau iOS
+            }
+          } else if (s.status === 'Pending') {
+            slotColor = '#ffcc00'; // Kuning/Oren
+            txtColor = 'black';
+          }
+
+          // --- LOGIK NAMA KHAS MOBILE ---
+          let displayName = "OPEN";
+          if (s.dr) {
+            // Jika skrin kecil (mobile), buang "DR" dan ambil nama depan
+            if (window.innerWidth < 768) {
+              displayName = s.dr.replace(/^(Dr|DR|dr)\.?\s+/i, "").split(' ')[0].toUpperCase();
+            } else {
+              // Jika skrin besar (laptop), kekal format asal Dr
+              displayName = "DR " + s.dr.split(' ')[0].toUpperCase();
+            }
+          }
+
+          return { 
+            id: s.id, 
+            title: displayName + " [" + s.masa + "]", 
+            start: formatISO(s.tarikh), 
+            color: slotColor, 
+            textColor: txtColor,
+            extendedProps: { branch: s.cawangan }
+          };
+        }); 
+        // --- TAMBAH TAPISAN TETAP DI SINI ---
+        let filteredData = currentFilter === 'All' 
+          ? allAdminSlots 
+          : allAdminSlots.filter(e => e.extendedProps.branch.includes(currentFilter));
+        
+        success(filteredData); 
+      }).getInitialData();
+    },    
+    eventClick: function(info) {
+      // --- 1. MANGGA KUNCI UNTUK STAFF (Letak Sini) ---
+      if (u.role === 'Staff') {
+        alert("🔒 VIEW ONLY: You are not authorized to manage or change doctor slots.");
+        return; // Dia akan berhenti di sini dan takkan jalan kod bawah
+      }
+      let slotId = info.event.id;
+      let drAsal = info.event.title;
+
+      // --- TAMBAHAN INFO CAWANGAN & TARIKH ---
+      let branch = info.event.extendedProps.branch || "N/A";
+      let slotDate = info.event.start.toLocaleDateString('en-GB', { 
+        day: '2-digit', month: '2-digit', year: 'numeric' 
+      });
+
+      // 1. Get doctor list for Assign logic
+      google.script.run.withSuccessHandler(doctors => {
+        
+        // 2. Admin Control Menu (Updated with Branch & Date)
+        let msg = `🛠️ ADMIN CONTROL PANEL\n` +
+                  `📍 Cawangan: ${branch}\n` +
+                  `📅 Tarikh: ${slotDate}\n` +
+                  `🕒 Slot: ${drAsal}\n` +
+                  `──────────────────────────────\n\n` +
+                  `[1] REPLACE / ASSIGN DOCTOR\n\n` +
+                  `[2] RESET TO AVAILABLE\n\n` +
+                  `[3] DELETE PERMANENTLY\n\n` +
+                  `──────────────────────────────\n` +
+                  `PLEASE ENTER CHOICE (1, 2, or 3):`;
+
+        let choice = prompt(msg);
+
+        if (choice === '1') {
+          // --- PILIHAN BARU: BOLEH PILIH DOKTOR ATAU TAIP MANUAL ---
+          let drListMsg = "SELECT DOCTOR OR TYPE MANUAL:\n" + 
+                          "--------------------------------\n" +
+                          "0. [TYPE NAME MANUALLY]\n" + 
+                          doctors.map((d, i) => `${i+1}. ${d.nama}`).join('\n');
+          
+          let drChoice = prompt(drListMsg);
+          
+          if (drChoice === '0') {
+            let manualName = prompt("Enter Doctor's Name (External):");
+            if (manualName && manualName.trim() !== "") {
+              if(confirm(`Confirm to assign ${manualName} (External) to this slot?`)) {
+                runAdminAction('REPLACE', slotId, "MANUAL", manualName);
+              }
+            }
+          } else if (drChoice && doctors[drChoice-1]) {
+            let selectedDr = doctors[drChoice-1];
+            if(confirm(`Confirm to REPLACE / ASSIGN Dr. ${selectedDr.nama} to this slot?`)) {
+               runAdminAction('REPLACE', slotId, selectedDr.phone, "");
+            }
+          }
+        } else if (choice === '2') {
+          // Logic for RESET
+          if (confirm("Are you sure you want to RESET this slot?")) {
+            runAdminAction('CANCEL', slotId);
+          }
+        } else if (choice === '3') {
+          // Logic for DELETE
+          if (confirm("CRITICAL: This will PERMANENTLY DELETE the slot?")) {
+            runAdminAction('DELETE', slotId);
+          }
+        }
+      }).getDoctorListForAdmin();
+    }
+  }); // Tutup Calendar init
+  calAdmin.render();
+}
+
+function runAdminAction(action, id, phone = "", manualName = "") { // <--- TAMBAH INI
+  // Tunjukkan loading overlay
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  
+  google.script.run.withSuccessHandler(res => {
+    // Sembunyikan loading overlay
+    document.getElementById('loading-overlay').classList.add('hidden');
+    alert(res);
+    
+    // Refresh kalendar Admin supaya nama/warna bertukar serta-merta
+    if(calAdmin) calAdmin.refetchEvents(); 
+    
+    // Refresh dashboard statistik (Total slots/Pending)
+    loadAdminDash(); 
+    
+    // Refresh tab Approvals (jika ada data berubah)
+    loadAdminTasks();
+  })
+  .withFailureHandler(err => {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    alert("System Error: " + err.message);
+  })
+  .adminManageSlot(action, id, phone, manualName); // <--- TAMBAH INI
+}
+
+// Tambah juga fungsi pembantu untuk butang CANCEL & REPLACE di tab Approvals
+function adminCancelPending(id, drName) {
+  if(confirm(`Cancel application from ${drName}? Slot will become Available.`)) {
+    runAdminAction('CANCEL', id);
+  }
+}
+
+function adminReplacePrompt(slotId) {
+  google.script.run.withSuccessHandler(doctors => {
+    let drListMsg = "Select New Doctor Number:\n" + doctors.map((d, i) => `${i+1}. ${d.nama}`).join('\n');
+    let drChoice = prompt(drListMsg);
+    if (drChoice && doctors[drChoice-1]) {
+       runAdminAction('REPLACE', slotId, doctors[drChoice-1].phone);
+    }
+  }).getDoctorListForAdmin();
+}
+
+    function checkProfileStatus() {
+  // 1. Reset Label & View Area supaya tidak bertindan
+  document.getElementById('label-mmc').innerHTML = 'MMC Number *';
+  document.getElementById('label-apc').innerHTML = 'APC 2026 (Upload) *';
+  document.getElementById('mmc-view-area').innerHTML = '';
+  document.getElementById('apc-view-area').innerHTML = '';
+  document.getElementById('ind-view-area').innerHTML = '';
+
+  // 2. Ambil data (MMC simpan "No | URL", APC simpan "URL", Indemnity simpan "Status | URL")
+  const mmcParts = (u.mmc || "").split('|');
+  const mmcNo = mmcParts[0].trim();
+  const mmcUrl = mmcParts[1] ? mmcParts[1].trim() : null;
+  
+  // APC kita simpan URL terus (atau link selepas tanda |)
+  const apcUrl = (u.apc || "").includes('http') ? (u.apc.includes('|') ? u.apc.split('|')[1].trim() : u.apc.trim()) : null;
+  
+  const indParts = (u.indemnity || "").split('|');
+  const indUrl = indParts[1] ? indParts[1].trim() : null;
+
+  // 3. Papar Butang View MMC (Jika ada fail)
+  if (mmcUrl) {
+    document.getElementById('label-mmc').innerHTML += ` <span class="badge bg-success" style="font-size:9px">✅ File Exists</span>`;
+    document.getElementById('mmc-view-area').innerHTML = `<a href="${mmcUrl}" target="_blank" class="view-btn bg-info text-white mt-1"><i class="bi bi-eye"></i> View Current MMC</a>`;
+  }
+
+  // 4. Papar Butang View APC (Jika ada fail)
+  if (apcUrl) {
+    document.getElementById('label-apc').innerHTML += ` <span class="badge bg-success" style="font-size:9px">✅ File Exists</span>`;
+    document.getElementById('apc-view-area').innerHTML = `<a href="${apcUrl}" target="_blank" class="view-btn bg-info text-white mt-1"><i class="bi bi-eye"></i> View Current APC</a>`;
+  }
+  
+  // 5. Papar Butang View Indemnity (Jika ada fail)
+  if (indUrl) {
+    document.getElementById('ind-view-area').innerHTML = `<a href="${indUrl}" target="_blank" class="view-btn bg-success text-white mt-1"><i class="bi bi-eye"></i> View Indemnity Policy</a>`;
+  }
+
+  // 6. SYARAT COMPLETE (IKUT ARAHAN BARU)
+  const hasEmail = u.email && u.email.includes('@');
+  const hasMmcNo = mmcNo.length > 2; // Wajib Nombor MMC
+  const hasApcFile = apcUrl !== null; // Wajib Fail APC
+
+  const isComp = (hasEmail && hasMmcNo && hasApcFile);
+  
+  if(!isComp) { 
+    document.getElementById('booking-warning').classList.remove('hidden'); 
+  } else { 
+    document.getElementById('booking-warning').classList.add('hidden'); 
+  }
+  return isComp;
+}
+
+    function updatePassword() {
+      const newP = document.getElementById('new-pass').value;
+      const btn = document.getElementById('btn-pass');
+      if(newP.length < 6) { alert("Password must be at least 6 characters."); return; }
+      if(confirm("Confirm change password?")) {
+        btn.disabled = true; btn.innerText = "Updating...";
+        google.script.run.withSuccessHandler(res => {
+          alert(res); document.getElementById('new-pass').value = ""; btn.disabled = false; btn.innerText = "Update Password";
+        }).changePassword(u.phone, newP);
+      }
+    }
+
+    function addBulkDate(d) { if(!d) return; bulkDates.push(d); document.getElementById('selected-dates').innerHTML = bulkDates.map(v => `<span class="badge bg-primary rounded-pill p-2 me-1 mb-1">${v}</span>`).join(''); }
+    
+    function keyInBulk() {
+  if(bulkDates.length === 0) return alert("Sila pilih tarikh terlebih dahulu!");
+  
+  const btn = document.getElementById('btn-bulk'); 
+  btn.disabled = true; 
+  btn.innerText = "Processing... (Please wait)";
+
+  let obj = { 
+    dates: bulkDates, 
+    cawangan: document.getElementById('k-branch').value, 
+    masa: document.getElementById('k-time').value, 
+  };
+
+  google.script.run
+    .withSuccessHandler(res => { 
+      alert(res); 
+      bulkDates = []; // Cuci senarai tarikh
+      document.getElementById('selected-dates').innerHTML = ""; 
+      btn.disabled = false; 
+      btn.innerText = "Save All Slots";
+      // Refresh kalendar admin terus
+      if(calAdmin) calAdmin.refetchEvents();
+    })
+    .withFailureHandler(err => {
+      // Jika server Google timeout, butang akan reset & Dr nampak ralatnya
+      alert("Sistem Sibuk: " + err.message);
+      btn.disabled = false;
+      btn.innerText = "Save All Slots";
+    })
+    .adminCreateBulkSlots(obj);
+}
+
+    function approveSlot(id) { 
+      if(confirm("Approve this slot?")) 
+        google.script.run.withSuccessHandler(res => { alert(res); loadAdminTasks(); if(calAdmin) calAdmin.refetchEvents(); loadAdminDash(); }).adminApproveSlot(id); 
+    }
+
+    function loadAdminDash() {
+    // 1. ZASSS! AUTO-SET DROPDOWN DULU (Jika belum ada session)
+    if (!sessionStorage.getItem('dash_loaded')) {
+        const today = new Date();
+        const autoM = (today.getMonth() + 1).toString().padStart(2, '0');
+        const autoY = today.getFullYear().toString();
+        
+        // Kemaskini Dropdown secara visual
+        const mInput = document.getElementById('monthSelectInput');
+        const yInput = document.getElementById('yearSelectInput');
+        
+        if (mInput) mInput.value = autoM;
+        if (yInput) yInput.value = autoY;
+        
+        sessionStorage.setItem('dash_loaded', 'true');
+    }
+
+    // 2. BARU AMBIL NILAI (Sekarang m & y akan pegang nilai Mac yang dah di-set tadi)
+    let m = document.getElementById('monthSelectInput').value;
+    let y = document.getElementById('yearSelectInput').value;
+    let selectedDr = document.getElementById('drSelectInput') ? document.getElementById('drSelectInput').value : "";
+
+    // 2. Panggil backend dengan PARAMETER (m, y) supaya Total Slots & Pending berubah ikut bulan
+    google.script.run.withSuccessHandler(data => {
+        
+        // 3. Update nombor statistik atas (Total & Pending)
+        document.getElementById('stat-total').innerText = data.total;
+        document.getElementById('stat-pending').innerText = data.pending;
+        if (typeof updateRedDots === "function") updateRedDots(data.pending);
+        
+        // 4. Update Carta
+        renderDocChart(data.pastSlots, data.directory);
+
+        // 5. Update Dropdown Doktor (Sekali sahaja)
+        const drDropdown = document.getElementById('drSelectInput');
+        if (drDropdown && drDropdown.options.length <= 1 && data.directory) {
+            data.directory.sort((a,b) => a.nama.localeCompare(b.nama)).forEach(dr => {
+                let opt = document.createElement('option');
+                opt.value = dr.nama.toUpperCase();
+                opt.innerHTML = dr.nama.toUpperCase();
+                drDropdown.appendChild(opt);
+            });
+            drDropdown.value = selectedDr;
+        }
+
+        // 6. Logik Triple Filter & Grouping Doktor (HYBRID DATE PARSER - PRESERVED)
+        const grouped = {};
+        data.pastSlots.forEach(s => {
+            const name = (s.dr || "UNNAMED").toUpperCase().trim();
+            
+            const matchDr = (name === selectedDr);
+
+            if (selectedDr !== "" && matchDr) {
+                if (!grouped[name]) grouped[name] = [];
+                grouped[name].push(s);
+            }
+        });
+
+        // 7. Generate HTML Output (MENGEKALKAN GAYA ASAL DR 100%)
+        let h = '';
+        const doctorNames = Object.keys(grouped).sort();
+
+        if (selectedDr === "") {
+            h = `
+                <div class="text-center p-5 bg-white rounded-3 shadow-sm border">
+                    <i class="bi bi-person-check text-muted mb-2" style="font-size: 2rem;"></i>
+                    <p class="text-muted small mb-0">Please select a doctor to view performance history.</p>
+                </div>`;
+        } else if (doctorNames.length === 0) {
+            h = `
+                <div class="text-center p-5 bg-white rounded-3 shadow-sm border">
+                    <i class="bi bi-calendar-x text-muted mb-2" style="font-size: 2rem;"></i>
+                    <p class="text-muted small mb-0">No records found for 'DR. ${selectedDr}' in ${m}/${y}.</p>
+                </div>`;
+        } else {
+            doctorNames.forEach(drName => {
+                h += `
+                    <div class="mt-4 mb-2">
+                        <span class="badge px-3 py-2" style="background:#001F3F; color:white; border-radius:8px; font-size:12px;">
+                            DR. ${drName}
+                        </span>
+                    </div>`;
+
+                grouped[drName].forEach(s => {
+                    h += `
+                        <div class="card p-3 mb-2 border-0 shadow-sm" style="border-radius:15px; border-left: 4px solid #001F3F !important; background:#fbfbfb;">
+                            <div class="fw-bold small text-muted mb-2">${s.tarikh} | ${s.cawangan}</div>
+                            
+                            <div class="row g-2">
+                                <div class="col-3">
+                                    <label class="text-muted" style="font-size:9px; font-weight:bold;">SALES</label>
+                                    <input type="number" id="sales-${s.id}" class="form-control form-control-sm" value="${s.sales || ''}">
+                                </div>
+                                <div class="col-3">
+                                    <label class="text-muted" style="font-size:9px; font-weight:bold;">PTS</label>
+                                    <input type="text" id="pts-${s.id}" class="form-control form-control-sm" value="${s.pesakit || ''}">
+                                </div>
+                                <div class="col-3">
+                                    <label class="text-muted" style="font-size:9px; font-weight:bold;">PAY RM</label>
+                                    <input type="number" id="pay-${s.id}" class="form-control form-control-sm" value="${s.bayaran || ''}">
+                                </div>
+                                <div class="col-3 d-flex align-items-end">
+                                    <button class="btn btn-primary btn-sm w-100 fw-bold" onclick="updateSlotPerformance('${s.id}')" style="background:#001F3F; font-size:10px; height:31px;">
+                                        SAVE
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+        // PINDAHKAN BARIS NI KE SINI (Pastikan dia di atas }); yang pertama)
+        document.getElementById('admin-past-list').innerHTML = h;
+
+    }).getAdminDashboardData(m, y); 
+}
+
+    function loadAdminTasks() { 
+  google.script.run.withSuccessHandler(data => { 
+    let h = ''; 
+    data.pendingApprovals.forEach(t => {
+      h += `
+      <div class="card p-3 mb-3 shadow-sm border-start border-warning border-4">
+        <div class="mb-3">
+          <b class="text-primary text-uppercase">${t.dr}</b>
+          <div style="font-size:10px;" class="text-danger fw-bold mb-1">Applied At: ${t.bookedAt || 'N/A'}</div>
+          <small class="text-muted d-block"><i class="bi bi-geo-alt"></i> ${t.cawangan} | ${t.tarikh} (${t.masa})</small>
+        </div>
+        
+        <div class="d-grid gap-2">
+          <button class="btn btn-success fw-bold py-2 shadow-sm" onclick="approveSlot('${t.id}')">APPROVE</button>
+          
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-danger btn-sm flex-fill fw-bold" onclick="adminCancelPending('${t.id}', '${t.dr}')">
+              <i class="bi bi-x-circle me-1"></i> CANCEL
+            </button>
+            
+            <button class="btn btn-outline-primary btn-sm flex-fill fw-bold" onclick="adminReplacePrompt('${t.id}')">
+              <i class="bi bi-person-plus me-1"></i> REPLACE
+            </button>
+          </div>
+        </div>
+      </div>`; 
+    }); 
+    document.getElementById('admin-task-list').innerHTML = h || '<div class="text-center p-4 text-muted">No pending tasks.</div>'; 
+    updateRedDots(data.pending); 
+  }).getAdminDashboardData(); 
+}
+
+    function loadStatus() { 
+  google.script.run.withSuccessHandler(data => { 
+    let h = ''; 
+    data.forEach(s => { 
+      let badge = s.status === 'Approved' ? 'bg-success' : 'bg-warning'; 
+      h += `
+      <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+        <div>
+          <b class="text-primary">${s.cawangan}</b><br>
+          <small class="text-muted">${s.tarikh}</small>
+        </div>
+        <div class="text-end">
+          <span class="badge ${badge} text-dark rounded-pill px-3 d-block mb-1">${s.status}</span>
+          <button class="btn btn-sm btn-outline-danger border-0" 
+                  onclick="doCancel('${s.id}', '${s.status}')" 
+                  style="font-size: 10px; font-weight: bold; text-decoration: underline;">
+            Cancel Slot
+          </button>
+        </div>
+      </div>`; 
+    }); 
+    document.getElementById('status-list').innerHTML = h || 'No records.'; 
+  }).getMyApplications(u.phone); 
+}
+    function loadFeedback() { 
+      // Paparkan status loading sementara menunggu data dari server
+      document.getElementById('feedback-list').innerHTML = '<center class="p-4">Loading ratings...</center>';
+      
+      google.script.run.withSuccessHandler(data => { 
+        let h = ''; 
+        if(!data || data.length === 0) {
+          h = '<center class="p-5 text-muted">No feedback yet.</center>';
+        } else {
+          data.forEach(x => { 
+            // Tentukan warna badge berdasarkan rating
+            let bClass = x.rating >= 4.0 ? 'bg-success' : (x.rating >= 3.0 ? 'bg-warning text-dark' : 'bg-danger');
+            
+            h += `<div class="card mb-3 p-3 shadow-sm border-0" style="border-left: 5px solid var(--navy) !important;">
+                    <div class="d-flex justify-content-between">
+                      <div>
+                        <b class="text-primary">${x.pesakit}</b><br>
+                        <small class="text-muted"><i class="bi bi-geo-alt"></i> ${x.cawangan} | ${x.tarikh}</small>
+                      </div>
+                      <span class="badge ${bClass}" style="height:fit-content;">⭐ ${x.rating}</span>
+                    </div>
+                    <p class="small mt-2 mb-0 text-dark">"${x.komen}"</p>
+                  </div>`; 
+          }); 
+        }
+        document.getElementById('feedback-list').innerHTML = h; 
+      }).getDoctorFeedback(u.nama); // Menggunakan nama doktor dari sesi login
+    }
+    
+    function loadAdminDirectory() { 
+      google.script.run.withSuccessHandler(data => { 
+        let h = '<div class="card border-0 shadow-sm p-0"><table class="table table-hover mb-0"><thead><tr class="table-light"><th>Doctor</th><th>Profile</th></tr></thead><tbody>'; 
+        data.directory.forEach(d => { 
+          let st = d.complete ? '<span class="text-success">● Complete</span>' : '<span class="text-danger">● Incomplete</span>'; 
+          h += `<tr><td><div class="fw-bold">${d.nama}</div><small class="text-muted">${d.phone}</small></td><td class="small">${st}</td></tr>`; 
+        }); 
+        h += '</tbody></table></div>'; 
+        document.getElementById('admin-dir-list').innerHTML = h; 
+      }).getAdminDashboardData(); 
+    }
+
+    function renderAdminFB(type) { 
+      google.script.run.withSuccessHandler(res => { 
+        let data = res[type]; 
+        if(!data || data.length === 0) return; 
+        let hHead = '<tr>'; 
+        let hBody = ''; 
+        data[0].forEach(h => hHead += `<th>${h}</th>`); 
+        hHead += '</tr>'; 
+        for(let i=1; i<data.length; i++) { 
+          hBody += '<tr>'; 
+          data[i].forEach(c => hBody += `<td>${c}</td>`); 
+          hBody += '</tr>'; 
+        } 
+        document.getElementById('fb-head').innerHTML = hHead; 
+        document.getElementById('fb-body').innerHTML = hBody; 
+      }).getAdminFeedbackAll(); 
+    }
+
+    function filterCal(branch) { 
+      currentFilter = branch; // 1. Simpan pilihan Dr (SK/Kajang/All)
+      
+      if(calAdmin) {
+        // 2. Paksa kalendar panggil semula data. 
+        // Masa dia panggil data ni, dia akan ikut filter yang Dr dah simpan tadi.
+        calAdmin.refetchEvents(); 
+      }
+    }
+
+    function formatISO(dateStr) { 
+      if(!dateStr) return null; 
+      let p = dateStr.split('/'); 
+      return p.length === 3 ? `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}` : dateStr; 
+    }
+
+    function runPedsCalc() {
+      const mg = parseFloat(document.getElementById('c-mg').value);
+      const ml = parseFloat(document.getElementById('c-ml').value);
+      const weight = parseFloat(document.getElementById('c-weight').value);
+      const targetDose = parseFloat(document.getElementById('c-target-dose').value);
+
+      if (mg && ml && weight && targetDose) {
+        // 1. Logik Pengiraan (Berat x Dos / Kepekatan)
+        const totalMgRequired = weight * targetDose;
+        const volumeNeeded = totalMgRequired / (mg / ml);
+        
+        // 2. Papar hasil dalam ML 
+        // Saya buang baris 'out-total-mg' di sini untuk elakkan sistem 'crash'
+        document.getElementById('out-ml').innerText = volumeNeeded.toFixed(2);
+        
+        // 3. Tunjukkan kawasan keputusan
+        const resultArea = document.getElementById('dose-result-area');
+        resultArea.classList.remove('hidden'); 
+        resultArea.classList.remove('d-none'); // Backup jika anda guna class Bootstrap
+
+        // 4. Tambah/Kemaskini Nota Remarks (Confirm Dose)
+        let noteEl = document.getElementById('dose-note');
+        if (!noteEl) {
+          noteEl = document.createElement('div');
+          noteEl.id = 'dose-note';
+          noteEl.className = "mt-3 p-3 text-start";
+          noteEl.style = "font-size: 11px; color: #444; background: #fff9e6; border-radius: 10px; border-left: 4px solid #ffcc00; line-height: 1.5;";
+          resultArea.appendChild(noteEl);
+        }
+        
+        // Memasukkan ayat profesional yang kita bincangkan tadi
+        noteEl.innerHTML = `<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i> 
+                            Please <b>confirm if</b> the target dose is <b>per day</b> (mg/kg/day) or <b>per dose</b> (mg/kg/dose).`;
+
+        // 5. Skrol ke bawah supaya doktor nampak jawapan terus
+        resultArea.scrollIntoView({ behavior: 'smooth' });
+        
+      } else {
+        alert("Please complete all fields (Weight, Strength, and Target Dose).");
+      }
+    }
+
+async function saveProfile() {
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  const btn = document.getElementById('btn-save'); 
+  btn.disabled = true; 
+  btn.innerText = "Saving...";
+
+  const emailInput = document.getElementById('u-email').value;
+  const mmcInput = document.getElementById('u-mmc').value;
+  const tempatInput = document.getElementById('u-tempat').value;
+  const indemnityStatus = document.querySelector('input[name="indemnity_status"]:checked').value;
+
+  const getFile = (id) => { 
+    const file = document.getElementById(id).files[0]; 
+    if (!file) return null; 
+    return new Promise(r => { 
+      const rd = new FileReader(); 
+      rd.onload = (e) => r({ contents: e.target.result.split(',')[1], mimeType: file.type }); 
+      rd.readAsDataURL(file); 
+    }); 
+  };
+
+  const f1 = await getFile('f-mmc'); 
+  const f2 = await getFile('f-apc');
+  const f3 = await getFile('f-indemnity');
+
+  google.script.run.withSuccessHandler(res => { 
+    document.getElementById('loading-overlay').classList.add('hidden');
+    alert(typeof res === 'object' ? res.message : res); 
+
+    // --- CRITICAL SYNC PART START ---
+    // 1. Update the local 'u' object so checkProfileStatus() sees the new data
+    u.email = emailInput; 
+    u.tempatKerja = tempatInput;
+
+    // Update MMC: Combine text input with the new URL returned from server
+    if(res.mmcUrl) {
+      u.mmc = mmcInput + " | " + res.mmcUrl;
+    } else {
+      // If no new file uploaded, keep the old link but update the MMC number part
+      let oldMmcLink = (u.mmc && u.mmc.includes('|')) ? u.mmc.split('|')[1].trim() : "";
+      u.mmc = oldMmcLink ? mmcInput + " | " + oldMmcLink : mmcInput;
+    }
+
+    // Update APC: Use the new URL from server
+    if(res.apcUrl) {
+      u.apc = res.apcUrl; 
+    }
+
+    // Update Indemnity
+    if(res.insUrl) {
+      u.indemnity = indemnityStatus + " | " + res.insUrl;
+    }
+
+    // 2. Save this updated 'u' to localStorage so it persists on refresh
+    localStorage.setItem('ara_hub_user', JSON.stringify(u));
+
+    // 3. Trigger the UI update immediately
+    checkProfileStatus(); 
+    // --- CRITICAL SYNC PART END ---
+
+    btn.disabled = false; 
+    btn.innerText = "Save Profile Changes";
+  })
+  .withFailureHandler(err => {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    alert("Error: " + err.message);
+    btn.disabled = false;
+    btn.innerText = "Save Profile Changes";
+  })
+  .updateProfile(u.phone, emailInput, mmcInput, "", "", tempatInput, f1, f2, f3, indemnityStatus);
+}
+// FUNGSI 1: LUKIS BADGE ALA APPLE FITNESS
+function renderBadges() {
+  const container = document.getElementById('badge-container');
+  if(!container) return;
+  container.innerHTML = ''; 
+
+  // 1. Ambil data badge (Contoh format: "Team Favorite:2, Iron Doctor:1")
+  const badgeData = u.badges || ""; 
+  const badgeMap = {};
+  
+  if (badgeData) {
+    badgeData.split(',').forEach(item => {
+      let trimmedItem = item.trim();
+      if (trimmedItem === "") return;
+
+      // 1. Cari ':' yang paling hujung untuk asingkan Nama dan Angka
+      const lastColon = trimmedItem.lastIndexOf(':');
+      let namePart = trimmedItem;
+      let count = 1;
+
+      if (lastColon !== -1) {
+        namePart = trimmedItem.substring(0, lastColon).trim();
+        count = parseInt(trimmedItem.substring(lastColon + 1).trim()) || 1;
+      }
+      
+      // 2. Ambil nama badge bersih (buang tarikh panjang dlm kurungan)
+      let cleanName = namePart.split('(')[0].trim();
+      
+      // 3. LOGIK PENYELAMAT: Ambil angka terbesar sahaja
+      // Supaya kalau ada rekod lama (4) dan rekod baru (8), dia ambil 8.
+      let currentStoredCount = parseInt(badgeMap[cleanName]) || 0;
+      badgeMap[cleanName] = Math.max(currentStoredCount, count);
+    });
+  }
+
+  // 2. Senarai Award (Nama kena TEPAT dengan dalam Dropdown Admin)
+  const awards = [
+    { name: 'Team Favorite', icon: 'bi-people-fill', color: 'linear-gradient(135deg, #00DFD8, #007CF0)', desc: 'Awarded for being the most helpful doctor voted by staff.' },
+    { name: 'Heart Winner', icon: 'bi-heart-fill', color: 'linear-gradient(135deg, #A2FF00, #349300)', desc: 'Name mentioned by a patient in a 5-star Google Review.' },
+    { name: 'Last Minute Savior', icon: 'bi-shield-shaded', color: 'linear-gradient(135deg, #FF4D4D, #F9CB28)', desc: 'Covered a slot with less than 48 hours notice.' },
+    { name: 'Iron Doctor', icon: 'bi-lightning-fill', color: 'linear-gradient(135deg, #FF0080, #7928CA)', desc: 'Completed a marathon 12-hour shift.' },
+    { name: 'The Unstoppable', icon: 'bi-infinity', color: 'linear-gradient(135deg, #5EE7DF, #B490CA)', desc: 'High consistency: 2 slots per month with zero cancellations.' },
+    { name: 'The Diligent Doc', icon: 'bi-book-fill', color: 'linear-gradient(135deg, #F9CB28, #FF4D4D)', desc: 'Attending clinic CME or briefing sessions.' }
+  ];
+
+  // 3. Lukis Medal
+  awards.forEach(a => {
+    const count = parseInt(badgeMap[a.name] || 0);
+    const isUnlocked = count > 0;
+    
+    // Logik Warna: Menyala jika ada, Kelabu jika 0
+    const style = isUnlocked 
+      ? `background: ${a.color}; opacity: 1; filter: none;` 
+      : `background: #2c2c2e; opacity: 0.15; filter: grayscale(100%);`;
+
+    container.innerHTML += `
+      <div style="text-align: center; min-width: 90px; cursor: pointer; position: relative;" onclick="showBadgeInfo('${a.name}', '${a.desc.replace(/'/g, "\\'")}', '${a.icon}', '${a.color}')">
+        <div class="badge-circle" style="${style} position: relative;">
+          <i class="bi ${a.icon} text-white fs-3" style="z-index: 2;"></i>
+          
+          ${isUnlocked ? `
+          <div style="position: absolute; top: -5px; right: -5px; background: #FF3B30; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-weight: 800; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+            ${count}
+          </div>` : ''}
+        </div>
+        <span class="badge-text" style="color: ${isUnlocked ? '#D4AF37' : '#999'}">${a.name}</span>
+      </div>`;
+  });
+}
+
+// FUNGSI POPUP (PASTIKAN ADA 3 BARIS LAST NI)
+function showBadgeInfo(name, desc, icon, color) {
+  // 1. Masukkan info ke dalam elemen modal
+  document.getElementById('modal-badge-name').innerText = name;
+  document.getElementById('modal-badge-desc').innerText = desc;
+  document.getElementById('modal-badge-icon').innerHTML = `
+    <div class="badge-circle mx-auto" style="background: ${color}; width: 65px; height: 65px; border: 3px solid #D4AF37; overflow: visible;">
+      <i class="bi ${icon} text-white fs-3"></i>
+    </div>`;
+
+  // 2. Panggil Bootstrap Modal untuk muncul
+  var modalEl = document.getElementById('badgeModal');
+  var myModal = new bootstrap.Modal(modalEl);
+  myModal.show();
+}
+
+// FUNGSI 2: PROSES BATAL SLOT (CANCEL) - VERSI FIX UNDEFINED
+function doCancel(id, status) {
+  let msg = status === 'Approved' ? 
+    "WARNING: This slot is already APPROVED. Cancelling will be recorded in your performance log. Proceed?" : 
+    "Withdraw this application?";
+    
+  if(confirm(msg)) {
+    // --- PENYELAMAT DATA: Tarik maklumat dari senarai status dlm skrin ---
+    // Kita cari baris status yang mengandungi ID butang yang ditekan
+    const allRows = document.querySelectorAll('#status-list .p-3');
+    let branchName = "Unknown";
+    let slotDate = "Unknown";
+    
+    allRows.forEach(row => {
+      if(row.innerHTML.includes(id)) {
+         branchName = row.querySelector('b').innerText;
+         slotDate = row.querySelector('small').innerText;
+      }
+    });
+
+    const drName = u.nama || "Doctor"; 
+    // -----------------------------------------------------------
+
+    document.getElementById('loading-overlay').classList.remove('hidden');
+    
+    google.script.run.withSuccessHandler(res => {
+      document.getElementById('loading-overlay').classList.add('hidden');
+      alert(res);
+      loadStatus(); 
+      if(calBooking) calBooking.refetchEvents();
+    }).doctorCancelSlot(id, u.phone, status, drName, slotDate, branchName); 
+  }
+}
+// --- FUNGSI UNTUK ADMIN AWARD TOOL ---
+    function loadAwardDoctorList() {
+      const drDropdown = document.getElementById('award-dr-list');
+      
+      // 1. Letak status loading supaya tak nampak kosong sementara tunggu data
+      drDropdown.innerHTML = '<option value="">Searching doctors...</option>';
+
+      google.script.run.withSuccessHandler(data => {
+        // 2. Check jika data directory wujud
+        if(data && data.directory && data.directory.length > 0) {
+          let h = '<option value="">-- Choose Doctor --</option>';
+          data.directory.forEach(d => {
+            h += `<option value="${d.phone}">${d.nama.toUpperCase()}</option>`;
+          });
+          drDropdown.innerHTML = h;
+        } else {
+          // 3. Jika kosong, beritahu admin
+          drDropdown.innerHTML = '<option value="">No doctors found.</option>';
+        }
+      }).getAdminDashboardData();
+    }
+
+    function submitAward() {
+      const phone = document.getElementById('award-dr-list').value;
+      const points = document.getElementById('award-type').value;
+      const awardName = document.getElementById('award-type').options[document.getElementById('award-type').selectedIndex].text;
+      const btn = document.getElementById('btn-give-award');
+
+      if(!phone) return alert("Please select a doctor.");
+      
+      if(confirm(`Confirm giving ${awardName} points to this doctor?`)) {
+        btn.disabled = true; 
+        btn.innerText = "Sending...";
+        document.getElementById('loading-overlay').classList.remove('hidden');
+        
+        // Hantar ke fungsi GS: adminGivePoints
+        google.script.run.withSuccessHandler(res => {
+          document.getElementById('loading-overlay').classList.add('hidden');
+          alert(res);
+          btn.disabled = false; 
+          btn.innerText = "Confirm & Send Points";
+          showTab('admin-dash'); // Balik ke dashboard selepas selesai
+        }).adminGivePoints(phone, points, awardName);
+      }
+    }
+    function updateSlotPerformance(id) {
+    // 1. Ambil nilai & pastikan ada default "0" supaya tak hang
+    const sales = document.getElementById('sales-' + id).value || "0";
+    const pts = document.getElementById('pts-' + id).value || "0";
+    const pay = document.getElementById('pay-' + id).value || "0";
+
+    // --- TAMBAHAN: Ambil Bulan/Tahun untuk elakkan 'undefined' dlm rekod ---
+    const m = document.getElementById('monthSelectInput').value;
+    const y = document.getElementById('yearSelectInput').value;
+    const currentPeriod = m + "/" + y;
+    
+    // Tunjukkan loading overlay
+    document.getElementById('loading-overlay').classList.remove('hidden');
+
+    google.script.run.withSuccessHandler(res => {
+        // Sembunyikan loading
+        document.getElementById('loading-overlay').classList.add('hidden');
+        
+        // --- ZASSS 1: Logik Award Sekali Sahaja dlm Satu Sesi ---
+        const awardKey = 'award_shown_' + id;
+        
+        // EDIT KAT SINI DR:
+        // Kita check jika 'res' ada ayat kejayaan dapat Award dari GS tadi
+        if (res && res.includes("Success! Awarded to") && !sessionStorage.getItem(awardKey)) {
+            sessionStorage.setItem(awardKey, 'true'); 
+            alert(res); // Popup Award keluar sekali saja
+        } 
+        else if (res && !res.includes("Success! Awarded to")) {
+            // Jika mesej "Performance saved" biasa, dia akan alert macam biasa
+            alert(res);
+        }
+        
+        // 2. Refresh dashboard (Kekalkan logic Dr)
+        setTimeout(function() {
+          loadAdminDash(); 
+        }, 1500);
+
+    }).completeSlotAndAwardPoints(id, sales, pts, pay, currentPeriod); // <--- ZASSS 2: Hantar currentPeriod
+}
+
+    function promptMonthlyReward() {
+  // 1. Ask for Month
+  let currentMonth = new Date().getMonth() + 1;
+  let m = prompt("REWARD SCANNER\n\nPlease enter the MONTH number (01-12):", currentMonth.toString().padStart(2, '0'));
+  if (!m) return;
+
+  // 2. Ask for Year
+  let y = prompt("Please enter the YEAR (e.g., 2026):", "2026");
+  if (!y) return;
+
+  // 3. Confirm
+  if (confirm(`Scan data for ${m}/${y}?\n\nCriteria: Min 2 Approved Slots & ZERO Cancellations.\n\nClick OK to start the process.`)) {
+    
+    // Change the loading text to be relevant
+    const overlay = document.getElementById('loading-overlay');
+    const loadingText = overlay.querySelector('h6');
+    const loadingSub = overlay.querySelector('p');
+    
+    if (loadingText) loadingText.innerText = "Processing Rewards...";
+    if (loadingSub) loadingSub.innerText = "Scanning all doctors for " + m + "/" + y + ". Please wait.";
+    
+    overlay.classList.remove('hidden');
+
+    google.script.run
+      .withSuccessHandler(res => {
+        overlay.classList.add('hidden');
+        alert(res);
+        // Reset loading text back to default for Profile uploads
+        if (loadingText) loadingText.innerText = "Uploading Files...";
+      })
+      .withFailureHandler(err => {
+        overlay.classList.add('hidden');
+        alert("System Error: " + err.message);
+      })
+      .processMonthlyUnstoppable(m, y);
+  }
+}
+
+  // --- JUMPA & PAPAR HEART WINNERS (GOOGLE REVIEWS) ---
+function loadHeartWinners() {
+  const container = document.getElementById('heart-suggestions');
+  container.innerHTML = '<small class="text-center p-3">Scanning individual reviews...</small>';
+
+  google.script.run.withSuccessHandler(list => {
+    if (list.length === 0) {
+      container.innerHTML = '<small class="text-muted p-3">No new reviews to award.</small>';
+      return;
+    }
+
+    let html = '<div style="max-height: 350px; overflow-y: auto;">';
+    list.forEach(item => {
+      html += `
+        <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-white rounded shadow-sm border-start border-danger border-4">
+          <div style="flex: 1;">
+            <div class="fw-bold" style="font-size: 11px;">${item.name}</div>
+            <div class="text-muted" style="font-size: 10px;">
+              <i class="bi bi-calendar-check me-1"></i>${item.date} 
+              <span class="badge bg-light text-dark ms-1">ID: ${item.row}</span>
+            </div>
+          </div>
+          <button class="btn btn-danger btn-sm fw-bold shadow-sm" style="font-size: 9px; border-radius: 8px;" 
+                  onclick="confirmHeartWinner('${item.name}', '${item.badgeId}')">AWARD</button>
+        </div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  }).getManualHeartCandidates();
+}
+
+// --- PROSES HANTAR GANJARAN (EXECUTOR) ---
+function confirmHeartWinner(drName, specificBadgeId) {
+  // Ambil info tarikh untuk paparan (Contoh: 15/02-R5)
+  let info = specificBadgeId.replace('Heart Winner (', '').replace(')', '');
+  
+  if(confirm(`Award 15 Aracoins for review ${info} to ${drName}?`)) {
+    
+    // 1. Cari No Telefon doktor dalam dropdown 'award-dr-list'
+    const select = document.getElementById('award-dr-list');
+    let phone = "";
+    for (let i = 0; i < select.options.length; i++) {
+      // Kita check jika nama doktor di dropdown ada dalam nama review
+      if (select.options[i].text.toUpperCase().includes(drName)) {
+        phone = select.options[i].value;
+        break;
+      }
+    }
+
+    if (!phone) {
+      alert("Error: Doctor's name '" + drName + "' not found in User List. Please ensure name in Feedback Sheet matches App registration.");
+      return;
+    }
+
+    // 2. Tunjukkan loading overlay
+    document.getElementById('loading-overlay').classList.remove('hidden');
+
+    // 3. Panggil fungsi backend untuk bagi point & badge unik ikut baris
+    google.script.run.withSuccessHandler(res => {
+      document.getElementById('loading-overlay').classList.add('hidden');
+      alert(res);
+      loadHeartWinners(); // Refresh: Baris review tadi akan AUTOMATIK HILANG
+    })
+    .withFailureHandler(err => {
+      document.getElementById('loading-overlay').classList.add('hidden');
+      alert("System Error: " + err.message);
+    })
+    .adminGivePoints(phone, 15, specificBadgeId);
+  }
+}
+function loadNewLocumList() {
+  google.script.run.withSuccessHandler(function(data) {
+    let tbody = document.getElementById('locum-app-body');
+    if (!tbody) return;
+    
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4 text-muted">No new applications.</td></tr>';
+      return;
+    }
+
+    let h = '';
+    data.forEach(r => {
+      // r[1]=Full Name(B), r[7]=Phone(H), r[2]=MMC(C), r[3]=APC(D), r[4]=INS(E), r[5]=CV(F), r[6]=Skills(G)
+      h += `
+        <tr>
+          <td class="ps-3">
+            <div class="fw-bold text-primary" style="font-size: 12px;">${(r[1] || 'Unknown').toUpperCase()}</div>
+            <a href="tel:${r[7]}" class="text-decoration-none text-muted" style="font-size: 10px; display: block;">
+              <i class="bi bi-whatsapp text-success me-1"></i>${r[7] || '-'}
+            </a>
+            <div class="text-muted italic" style="font-size: 9px; margin-top: 2px;">
+              <i class="bi bi-star-fill text-warning me-1"></i>Skills: ${r[6] || 'None stated'}
+            </div>
+          </td>
+          <td>
+            <div style="font-size: 10px; font-weight: 600;">MMC: ${r[2] || '-'}</div>
+            <div class="d-flex gap-1 mt-1">
+              <a href="${r[3]}" target="_blank" class="badge bg-info text-white text-decoration-none" style="font-size: 8px;">APC</a>
+              <a href="${r[4]}" target="_blank" class="badge bg-warning text-dark text-decoration-none" style="font-size: 8px;">INS</a>
+            </div>
+          </td>
+          <td class="text-end pe-3">
+            <a href="${r[5]}" target="_blank" class="btn btn-sm btn-dark fw-bold" style="font-size: 9px; border-radius: 8px; padding: 5px 10px;">
+              VIEW CV
+            </a>
+          </td>
+        </tr>`;
+    });
+    tbody.innerHTML = h;
+  }).getNewLocumApplications();
+}
+
+</script>
+
+  <div class="modal fade" id="badgeModal" tabindex="-1" aria-hidden="true" style="z-index: 10000;">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content" style="border-radius: 25px; border: none; background: #fff; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+        <div class="modal-body text-center p-4">
+          <div id="modal-badge-icon" class="mb-3"></div>
+          <h5 id="modal-badge-name" class="fw-bold mb-2" style="color: #001F3F; letter-spacing: -0.5px;"></h5>
+          <p id="modal-badge-desc" class="text-muted small mb-0" style="line-height: 1.5; font-weight: 500;"></p>
+          <button type="button" class="btn btn-primary w-100 mt-4 py-2" data-bs-dismiss="modal" style="border-radius: 12px; background: #001F3F !important; border:none; font-weight: 600;">Got it!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+</body>
+</html>
