@@ -956,26 +956,34 @@
         </div>
       </div>
     </div> </div> <script>
-
-    // Link "suci" Dr tanpa /u/1/
+      
+    // 1. Link Public Dr
 const scriptURL = 'https://script.google.com/macros/s/AKfycbypILmDef-Jfa0UtLKd_DF7jvBmm825QFQ6TFSU1vJY7y6UIN77VN9GiJrOuItmDqT5/exec';
 
+// 2. SUPER BRIDGE (MENYAMAR SEBAGAI GOOGLE.SCRIPT.RUN)
 const google = {
   script: {
     run: {
+      // Ini fungsi untuk tangkap callback Dr
       withSuccessHandler: function(callback) {
-        this.callback = callback;
+        this.currentCallback = callback;
         return this;
       },
+      // Ini fungsi untuk tangkap error (jika ada)
+      withFailureHandler: function(handler) {
+        this.currentFailure = handler;
+        return this;
+      },
+      // PROXY MAGIC: Dia akan tangkap apa-apa nama fungsi (loginUser, bookSlot, etc)
       ...new Proxy({}, {
         get: (target, name) => {
           return function(...args) {
             const callbackName = 'jsonp_' + Math.round(Math.random() * 1000000);
+            const savedCallback = this.currentCallback; // Simpan callback dlm scope ni
             
-            // Sediakan "pendengar" untuk jawapan dari Google
+            // Sediakan listener global
             window[callbackName] = (res) => {
-              if (this.callback) this.callback(res);
-              // Buang script & function lepas guna supaya tak berat
+              if (savedCallback) savedCallback(res);
               delete window[callbackName];
               const scriptTag = document.getElementById(callbackName);
               if (scriptTag) scriptTag.remove();
@@ -983,11 +991,14 @@ const google = {
 
             const finalURL = `${scriptURL}?action=${name}&data=${encodeURIComponent(JSON.stringify(args))}&callback=${callbackName}`;
 
-            // Guna teknik Script Injection (Cara paling 'kebal' untuk domain hsohealthcare.com)
             const script = document.createElement('script');
             script.id = callbackName;
             script.src = finalURL;
             document.body.appendChild(script);
+            
+            // Reset handler untuk panggillan seterusnya
+            this.currentCallback = null;
+            this.currentFailure = null;
           }.bind(google.script.run);
         }
       })
