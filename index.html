@@ -958,46 +958,48 @@
       </div>
     </div> </div> <script>
 
-  // 1. LETAK DI SINI (Bahagian paling atas dalam tag script)
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbypILmDef-Jfa0UtLKd_DF7jvBmm825QFQ6TFSU1vJY7y6UIN77VN9GiJrOuItmDqT5/exec';
+  // --- 1. LINK PUBLIC ---
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbypILmDef-Jfa0UtLKd_DF7jvBmm825QFQ6TFSU1vJY7y6UIN77VN9GiJrOuItmDqT5/exec';
 
-  const google = {
-    script: {
-      run: {
-        withSuccessHandler: function(callback) {
-          this.currentCallback = callback;
-          return this;
-        },
-        withFailureHandler: function(handler) {
-          this.currentFailure = handler;
-          return this;
+    // --- 2. SUPER BRIDGE (FIXED SYNTAX) ---
+    var google = {
+      script: {
+        run: {
+          withSuccessHandler: function(callback) {
+            this.currentCallback = callback;
+            return this;
+          },
+          withFailureHandler: function(handler) {
+            this.currentFailure = handler;
+            return this;
+          }
         }
       }
-    }
-  };
+    };
 
-  google.script.run = new Proxy(google.script.run, {
-    get: (target, name) => {
-      if (name === 'withSuccessHandler' || name === 'withFailureHandler') {
-        return target[name];
-      }
-      return function(...args) {
-        const callbackName = 'jsonp_' + Math.round(Math.random() * 1000000);
-        const savedCallback = target.currentCallback;
+    google.script.run = new Proxy(google.script.run, {
+      get: function(target, name) {
+        if (name === 'withSuccessHandler' || name === 'withFailureHandler') {
+          return target[name];
+        }
+        return function() {
+          var args = Array.prototype.slice.call(arguments);
+          var callbackName = 'jsonp_' + Math.round(Math.random() * 1000000);
+          var savedCallback = target.currentCallback;
 
-        window[callbackName] = (res) => {
-          if (savedCallback) savedCallback(res);
-          delete window[callbackName];
-          const scriptTag = document.getElementById(callbackName);
-          if (scriptTag) scriptTag.remove();
-        };
+          window[callbackName] = function(res) {
+            if (savedCallback) savedCallback(res);
+            delete window[callbackName];
+            var scriptTag = document.getElementById(callbackName);
+            if (scriptTag) scriptTag.remove();
+          };
 
-        const finalURL = `${scriptURL}?action=${name}&data=${encodeURIComponent(JSON.stringify(args))}&callback=${callbackName}`;
-        const script = document.createElement('script');
-        script.id = callbackName;
-        script.src = finalURL;
-        document.body.appendChild(script);
-        target.currentCallback = null;
+          var finalURL = scriptURL + '?action=' + name + '&data=' + encodeURIComponent(JSON.stringify(args)) + '&callback=' + callbackName;
+          var script = document.createElement('script');
+          script.id = callbackName;
+          script.src = finalURL;
+          document.body.appendChild(script);
+          target.currentCallback = null;
       };
     }
   });
