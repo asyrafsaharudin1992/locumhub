@@ -957,10 +957,9 @@
       </div>
     </div> </div> <script>
 
-      // --- 1. PASTE LINK SUCI DR KAT SINI (PASTIKAN TIADA /u/1/) ---
+    // Link "suci" Dr tanpa /u/1/
 const scriptURL = 'https://script.google.com/macros/s/AKfycbypILmDef-Jfa0UtLKd_DF7jvBmm825QFQ6TFSU1vJY7y6UIN77VN9GiJrOuItmDqT5/exec';
 
-// --- 2. BRIDGE TRANSLATOR GITHUB TO GAS (VERSION FIX AUTHENTICATING STUCK) ---
 const google = {
   script: {
     run: {
@@ -971,30 +970,24 @@ const google = {
       ...new Proxy({}, {
         get: (target, name) => {
           return function(...args) {
-            // Gunakan URLSearchParams untuk pastikan data dihantar dengan format GET yang bersih
-            const params = new URLSearchParams({
-              action: name,
-              data: JSON.stringify(args)
-            });
+            const callbackName = 'jsonp_' + Math.round(Math.random() * 1000000);
             
-            const finalURL = `${scriptURL}?${params.toString()}`;
+            // Sediakan "pendengar" untuk jawapan dari Google
+            window[callbackName] = (res) => {
+              if (this.callback) this.callback(res);
+              // Buang script & function lepas guna supaya tak berat
+              delete window[callbackName];
+              const scriptTag = document.getElementById(callbackName);
+              if (scriptTag) scriptTag.remove();
+            };
 
-            fetch(finalURL, {
-              method: 'GET',
-              mode: 'cors',
-              redirect: 'follow'
-            })
-            .then(res => {
-              if (!res.ok) throw new Error('Network error');
-              return res.json();
-            })
-            .then(res => { 
-              if (this.callback) this.callback(res); 
-            })
-            .catch(err => {
-              console.error("Bridge Error:", err);
-              // Jika stuck, kita bagi amaran di console
-            });
+            const finalURL = `${scriptURL}?action=${name}&data=${encodeURIComponent(JSON.stringify(args))}&callback=${callbackName}`;
+
+            // Guna teknik Script Injection (Cara paling 'kebal' untuk domain hsohealthcare.com)
+            const script = document.createElement('script');
+            script.id = callbackName;
+            script.src = finalURL;
+            document.body.appendChild(script);
           }.bind(google.script.run);
         }
       })
