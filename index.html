@@ -957,11 +957,10 @@
       </div>
     </div> </div> <script>
 
-      // Gantikan dengan URL Web App (exec) Dr yang terkini
-const scriptURL = 'https://script.google.com/macros/u/1/s/AKfycbypILmDef-Jfa0UtLKd_DF7jvBmm825QFQ6TFSU1vJY7y6UIN77VN9GiJrOuItmDqT5/exec';
+      // 1. GANTI URL DI BAWAH DENGAN URL YANG DR SALIN TADI (PASTIKAN TIADA /u/1/)
+const scriptURL = 'https://script.google.com/macros/s/AKfycbypILmDef-Jfa0UtLKd_DF7jvBmm825QFQ6TFSU1vJY7y6UIN77VN9GiJrOuItmDqT5/exec';
 
-  
-      // --- BRIDGE TRANSLATOR (GITHUB TO GOOGLE SCRIPT) ---
+// --- BRIDGE TRANSLATOR GITHUB TO GAS ---
 const google = {
   script: {
     run: {
@@ -969,19 +968,21 @@ const google = {
         this.callback = callback;
         return this;
       },
-      // Ini fungsi 'magic' yang akan hantar data ke GAS
-      // Kita guna Proxy supaya apa sahaja nama fungsi (saveAnn, loginUser, etc) 
-      // yang Dr panggil, dia akan automatik hantar ke scriptURL
       ...new Proxy({}, {
         get: (target, name) => {
           return function(...args) {
             const url = `${scriptURL}?action=${name}&data=${encodeURIComponent(JSON.stringify(args))}`;
-            fetch(url)
-              .then(response => response.json())
-              .then(res => {
-                if (this.callback) this.callback(res);
-              })
-              .catch(err => console.error("Bridge Error:", err));
+            
+            fetch(url, {
+              method: 'GET',
+              mode: 'cors',
+              redirect: 'follow'
+            })
+            .then(res => res.json())
+            .then(res => { 
+              if (this.callback) this.callback(res); 
+            })
+            .catch(err => console.error("Database Error:", err));
           }.bind(google.script.run);
         }
       })
