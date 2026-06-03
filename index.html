@@ -2060,11 +2060,31 @@ async function saveProfile() {
   const getFile = (id) => { 
     const file = document.getElementById(id).files[0]; 
     if (!file) return null; 
-    return new Promise(r => { 
-      const rd = new FileReader(); 
-      rd.onload = (e) => r({ contents: e.target.result.split(',')[1], mimeType: file.type }); 
-      rd.readAsDataURL(file); 
-    }); 
+
+    // PDF tak boleh compress guna canvas — hantar terus
+    if (file.type === 'application/pdf') {
+      return new Promise(r => { 
+        const rd = new FileReader(); 
+        rd.onload = (e) => r({ contents: e.target.result.split(',')[1], mimeType: file.type }); 
+        rd.readAsDataURL(file); 
+      });
+    }
+
+    // Gambar (JPG/PNG) — kecilkan dulu sebelum upload
+    return new Promise(r => {
+      const img = new Image();
+      const rd = new FileReader();
+      rd.onload = (e) => { img.src = e.target.result; };
+      img.onload = () => {
+        const scale = Math.min(1, 1200 / img.width);
+        const c = document.createElement('canvas');
+        c.width = img.width * scale;
+        c.height = img.height * scale;
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        r({ contents: c.toDataURL('image/jpeg', 0.7).split(',')[1], mimeType: 'image/jpeg' });
+      };
+      rd.readAsDataURL(file);
+    });
   };
 
   const f1 = await getFile('f-mmc'); 
