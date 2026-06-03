@@ -2059,30 +2059,44 @@ async function saveProfile() {
 
   const getFile = (id) => { 
     const file = document.getElementById(id).files[0]; 
-    if (!file) return null; 
+    if (!file) return Promise.resolve(null); 
 
-    // PDF tak boleh compress guna canvas — hantar terus
-    if (file.type === 'application/pdf') {
-      return new Promise(r => { 
-        const rd = new FileReader(); 
-        rd.onload = (e) => r({ contents: e.target.result.split(',')[1], mimeType: file.type }); 
-        rd.readAsDataURL(file); 
-      });
-    }
+    return new Promise((resolve) => {
+      // PENGAMAN: kalau lebih 20 saat tak siap, jangan tergantung — pulang null
+      const timer = setTimeout(() => resolve(null), 20000);
 
-    // Gambar (JPG/PNG) — kecilkan dulu sebelum upload
-    return new Promise(r => {
-      const img = new Image();
+      // PDF — hantar terus, tak boleh kompres
+      if (file.type === 'application/pdf') {
+        const rd = new FileReader();
+        rd.onload = (e) => { clearTimeout(timer); resolve({ contents: e.target.result.split(',')[1], mimeType: file.type }); };
+        rd.onerror = () => { clearTimeout(timer); resolve(null); };
+        rd.readAsDataURL(file);
+        return;
+      }
+
+      // Gambar — cuba kecilkan; kalau gagal, hantar asal
       const rd = new FileReader();
-      rd.onload = (e) => { img.src = e.target.result; };
-      img.onload = () => {
-        const scale = Math.min(1, 1200 / img.width);
-        const c = document.createElement('canvas');
-        c.width = img.width * scale;
-        c.height = img.height * scale;
-        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-        r({ contents: c.toDataURL('image/jpeg', 0.7).split(',')[1], mimeType: 'image/jpeg' });
+      rd.onload = (e) => {
+        const dataUrl = e.target.result;
+        const img = new Image();
+        img.onerror = () => { clearTimeout(timer); resolve({ contents: dataUrl.split(',')[1], mimeType: file.type }); };
+        img.onload = () => {
+          try {
+            const scale = Math.min(1, 1200 / img.width);
+            const c = document.createElement('canvas');
+            c.width = img.width * scale;
+            c.height = img.height * scale;
+            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+            clearTimeout(timer);
+            resolve({ contents: c.toDataURL('image/jpeg', 0.7).split(',')[1], mimeType: 'image/jpeg' });
+          } catch (err) {
+            clearTimeout(timer);
+            resolve({ contents: dataUrl.split(',')[1], mimeType: file.type });
+          }
+        };
+        img.src = dataUrl;
       };
+      rd.onerror = () => { clearTimeout(timer); resolve(null); };
       rd.readAsDataURL(file);
     });
   };
