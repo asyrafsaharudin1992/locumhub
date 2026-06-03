@@ -1100,3 +1100,25 @@ function sendCancelNotification(drName, slotDate, branchName) {
     body: message
   });
 }
+
+function doPost(e) {
+  try {
+    var p = e.parameter;
+    var mmcFile = p.mmcFile ? JSON.parse(p.mmcFile) : null;
+    var apcFile = p.apcFile ? JSON.parse(p.apcFile) : null;
+    var insFile = p.insFile ? JSON.parse(p.insFile) : null;
+
+    var result = updateProfile(
+      p.phone, p.email, p.mmc, "", "", p.tempatKerja,
+      mmcFile, apcFile, insFile, p.indStatus
+    );
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ message: result }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ message: "Error: " + err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
