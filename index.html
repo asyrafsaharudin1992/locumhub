@@ -2091,51 +2091,39 @@ async function saveProfile() {
   const f2 = await getFile('f-apc');
   const f3 = await getFile('f-indemnity');
 
-  google.script.run.withSuccessHandler(res => { 
+  // Hantar guna POST (fail masuk dalam body, bukan URL) — elak CORB/URL panjang
+  const fd = new FormData();
+  fd.append('phone', u.phone);
+  fd.append('email', emailInput);
+  fd.append('mmc', mmcInput);
+  fd.append('tempatKerja', tempatInput);
+  fd.append('indStatus', indemnityStatus);
+  if (f1) fd.append('mmcFile', JSON.stringify(f1));
+  if (f2) fd.append('apcFile', JSON.stringify(f2));
+  if (f3) fd.append('insFile', JSON.stringify(f3));
+
+  try {
+    const resp = await fetch(scriptURL, { method: 'POST', body: fd });
+    const res = await resp.json();
+
     document.getElementById('loading-overlay').classList.add('hidden');
-    alert(typeof res === 'object' ? res.message : res); 
+    alert(res.message || "Profile Updated!");
 
-    // --- CRITICAL SYNC PART START ---
-    // 1. Update the local 'u' object so checkProfileStatus() sees the new data
-    u.email = emailInput; 
+    u.email = emailInput;
     u.tempatKerja = tempatInput;
-
-    // Update MMC: Combine text input with the new URL returned from server
-    if(res.mmcUrl) {
-      u.mmc = mmcInput + " | " + res.mmcUrl;
-    } else {
-      // If no new file uploaded, keep the old link but update the MMC number part
-      let oldMmcLink = (u.mmc && u.mmc.includes('|')) ? u.mmc.split('|')[1].trim() : "";
-      u.mmc = oldMmcLink ? mmcInput + " | " + oldMmcLink : mmcInput;
-    }
-
-    // Update APC: Use the new URL from server
-    if(res.apcUrl) {
-      u.apc = res.apcUrl; 
-    }
-
-    // Update Indemnity
-    if(res.insUrl) {
-      u.indemnity = indemnityStatus + " | " + res.insUrl;
-    }
-
-    // 2. Save this updated 'u' to localStorage so it persists on refresh
+    let oldMmcLink = (u.mmc && u.mmc.includes('|')) ? u.mmc.split('|')[1].trim() : "";
+    u.mmc = oldMmcLink ? mmcInput + " | " + oldMmcLink : mmcInput;
     localStorage.setItem('ara_hub_user', JSON.stringify(u));
+    checkProfileStatus();
 
-    // 3. Trigger the UI update immediately
-    checkProfileStatus(); 
-    // --- CRITICAL SYNC PART END ---
-
-    btn.disabled = false; 
+    btn.disabled = false;
     btn.innerText = "Save Profile Changes";
-  })
-  .withFailureHandler(err => {
+  } catch (err) {
     document.getElementById('loading-overlay').classList.add('hidden');
     alert("Error: " + err.message);
     btn.disabled = false;
     btn.innerText = "Save Profile Changes";
-  })
-  .updateProfile(u.phone, emailInput, mmcInput, "", "", tempatInput, f1, f2, f3, indemnityStatus);
+  }
 }
 // FUNGSI 1: LUKIS BADGE ALA APPLE FITNESS
 function renderBadges() {
