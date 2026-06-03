@@ -511,7 +511,6 @@ function updateProfile(phone, email, mmc, apc, bank, tempatKerja, mmcFile, apcFi
     var fileName = doctorName.toUpperCase().replace(/\s+/g, '_') + "_" + label;
     var blob = Utilities.newBlob(Utilities.base64Decode(fileData.contents), fileData.mimeType, fileName);
     var file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); // Supaya admin boleh buka fail
     return file.getUrl();
   }
 
