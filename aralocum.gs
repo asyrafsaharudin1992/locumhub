@@ -27,16 +27,16 @@ function loginUser(phone, password) {
     if (data[i][0].trim() == phone.trim() && (storedPass == password.trim() || storedPass == encodedInput)) {
       return { 
         success: true, 
-        nama: data[i][2], 
-        role: data[i][3], 
-        phone: data[i][0],
-        email: data[i][4], 
-        mmc: data[i][5], 
-        apc: data[i][6], 
-        indemnity: data[i][7], 
-        tempatKerja: data[i][8],
+        success: true, 
+        nama: String(data[i][2]), 
+        role: String(data[i][3]), 
+        phone: String(data[i][0]),
+        email: String(data[i][4] || ""), 
+        mmc: String(data[i][5] || ""), 
+        apc: String(data[i][6] || ""), 
+        indemnity: String(data[i][7] || ""),
         points: data[i][10] ? Number(data[i][10]) : 0,
-        badges: data[i][11] || "" // <--- WAJIB TAMBAH INI supaya App boleh baca badges
+        badges: String(data[i][11] || "")
       };
     }
   }
