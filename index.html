@@ -2162,7 +2162,7 @@ async function saveProfile() {
     u.mmc = oldMmcLink ? mmcInput + " | " + oldMmcLink : mmcInput;
 
     // Tandakan fail yang baru di-upload supaya butang View terus keluar
-    if (f2) u.apc = (u.apc && u.apc.includes('http')) ? u.apc : "APC | uploaded";
+    if (f2 && !(u.apc && u.apc.includes('http'))) u.apc = "APC | http://uploaded";
     if (f3) u.indemnity = indemnityStatus + " | uploaded";
     else u.indemnity = indemnityStatus;
     if (f1) u.mmc = mmcInput + " | uploaded";
