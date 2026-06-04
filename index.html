@@ -1671,6 +1671,7 @@ function adminReplacePrompt(slotId) {
   const apcUrl = (u.apc || "").includes('http') ? (u.apc.includes('|') ? u.apc.split('|')[1].trim() : u.apc.trim()) : null;
   
   const indParts = (u.indemnity || "").split('|');
+  const indStatus = indParts[0] ? indParts[0].trim() : "";
   const indUrl = indParts[1] ? indParts[1].trim() : null;
 
   // 3. Papar Butang View MMC (Jika ada fail)
@@ -1688,6 +1689,14 @@ function adminReplacePrompt(slotId) {
   // 5. Papar Butang View Indemnity (Jika ada fail)
   if (indUrl) {
     document.getElementById('ind-view-area').innerHTML = `<a href="${indUrl}" target="_blank" class="view-btn bg-success text-white mt-1"><i class="bi bi-eye"></i> View Indemnity Policy</a>`;
+  }
+
+  // 5b. Jika doktor pernah pilih "Ada" / ada fail — tick radio "Ada" & buka kotak
+  if (indStatus.toLowerCase() === 'ada' || indUrl) {
+    const adaRadio = document.getElementById('has_indemnity');
+    if (adaRadio) adaRadio.checked = true;
+    const indBox = document.getElementById('indemnity-box');
+    if (indBox) indBox.style.display = 'block';
   }
 
   // 6. SYARAT COMPLETE (IKUT ARAHAN BARU)
