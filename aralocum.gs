@@ -1067,6 +1067,40 @@ function checkLiveProfileStatus(phone) {
   }
 }
 
+function getSecureFile(phone, docType) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Users");
+  var data = sheet.getDataRange().getValues();
+  var searchPhone = phone.toString().trim();
+
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0].toString().trim() === searchPhone) {
+      var cell = "";
+      if (docType === 'mmc') cell = data[i][5];        // Kolum F
+      else if (docType === 'apc') cell = data[i][6];   // Kolum G
+      else if (docType === 'indemnity') cell = data[i][7]; // Kolum H
+      else return { error: "Jenis dokumen tak sah." };
+
+      cell = (cell || "").toString();
+      var match = cell.match(/[-\w]{25,}/); // ID fail Drive (25+ aksara)
+      if (!match) return { error: "Tiada fail dijumpai." };
+
+      try {
+        var file = DriveApp.getFileById(match[0]);
+        var blob = file.getBlob();
+        return {
+          name: file.getName(),
+          mimeType: blob.getContentType(),
+          data: Utilities.base64Encode(blob.getBytes())
+        };
+      } catch (e) {
+        return { error: "Tak dapat buka fail: " + e.message };
+      }
+    }
+  }
+  return { error: "User tak dijumpai." };
+}
+
 function getNewLocumApplications() {
   var ss = SpreadsheetApp.openById("1JhLEA8DjNyt0-fIVybtUY5MCuaP2XsN0UftHlYfe6lM");
   var sheet = ss.getSheetByName("Form responses 1");
