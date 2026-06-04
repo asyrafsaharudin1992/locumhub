@@ -1703,18 +1703,16 @@ function viewSecureFile(docType) {
   // 3. Papar Butang View MMC (Jika ada fail)
   if (mmcUrl) {
     document.getElementById('label-mmc').innerHTML += ` <span class="badge bg-success" style="font-size:9px">✅ File Exists</span>`;
-    document.getElementById('mmc-view-area').innerHTML = `<a href="${mmcUrl}" target="_blank" class="view-btn bg-info text-white mt-1"><i class="bi bi-eye"></i> View Current MMC</a>`;
-  }
+    document.getElementById('mmc-view-area').innerHTML = `<a href="${mmcUrl}" target="_blank" class="view-btn bg-info text-white mt-1"><i class="bi bi-eye"></i> View Current MMC</a>`;document.getElementById('mmc-view-area').innerHTML = `<button onclick="viewSecureFile('mmc')" class="view-btn bg-info text-white mt-1" style="border:none;"><i class="bi bi-eye"></i> View Current MMC</button>`;  }
 
   // 4. Papar Butang View APC (Jika ada fail)
   if (apcUrl) {
     document.getElementById('label-apc').innerHTML += ` <span class="badge bg-success" style="font-size:9px">✅ File Exists</span>`;
-    document.getElementById('apc-view-area').innerHTML = `<a href="${apcUrl}" target="_blank" class="view-btn bg-info text-white mt-1"><i class="bi bi-eye"></i> View Current APC</a>`;
-  }
+    document.getElementById('apc-view-area').innerHTML = `<button onclick="viewSecureFile('apc')" class="view-btn bg-info text-white mt-1" style="border:none;"><i class="bi bi-eye"></i> View Current APC</button>`;  }
   
   // 5. Papar Butang View Indemnity (Jika ada fail)
   if (indUrl) {
-    document.getElementById('ind-view-area').innerHTML = `<a href="${indUrl}" target="_blank" class="view-btn bg-success text-white mt-1"><i class="bi bi-eye"></i> View Indemnity Policy</a>`;
+    document.getElementById('ind-view-area').innerHTML = `<button onclick="viewSecureFile('indemnity')" class="view-btn bg-success text-white mt-1" style="border:none;"><i class="bi bi-eye"></i> View Indemnity Policy</button>`;
   }
 
   // 5b. Jika doktor pernah pilih "Ada" / ada fail — tick radio "Ada" & buka kotak
