@@ -1654,6 +1654,32 @@ function adminReplacePrompt(slotId) {
   }).getDoctorListForAdmin();
 }
 
+function viewSecureFile(docType) {
+  // Buka tab dulu DALAM klik (elak popup blocker Safari)
+  var win = window.open('about:blank', '_blank');
+  document.getElementById('loading-overlay').classList.remove('hidden');
+
+  google.script.run.withSuccessHandler(function(res) {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    if (!res || res.error) {
+      if (win) win.close();
+      alert("Tak dapat buka fail: " + (res ? res.error : "tiada respons"));
+      return;
+    }
+    try {
+      var bin = atob(res.data);
+      var arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      var blob = new Blob([arr], { type: res.mimeType });
+      var url = URL.createObjectURL(blob);
+      if (win) win.location.href = url; else window.open(url, '_blank');
+    } catch (e) {
+      if (win) win.close();
+      alert("Ralat papar fail: " + e.message);
+    }
+  }).getSecureFile(u.phone, docType);
+}  
+  
     function checkProfileStatus() {
   // 1. Reset Label & View Area supaya tidak bertindan
   document.getElementById('label-mmc').innerHTML = 'MMC Number *';
